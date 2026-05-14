@@ -1,0 +1,54 @@
+# CONTEXT.md
+
+The shared mental model of this project. Read this before changing anything non-trivial.
+
+## Purpose
+
+Self-hosted RAG agent over biweekly newspaper PDFs and a publisher's website (HTML + linked PDFs). Replaces a managed Ragie (PDF RAG) + Tavily (web search) setup with infrastructure we control. Built on Mastra.
+
+## Compliance constraint (non-negotiable)
+
+Target deployment = **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible. **No document or query text may flow to a non-EU cloud provider in the runtime retrieval path.**
+
+- Embeddings: **local**, via Ollama. See [ADR 0001](./docs/adr/0001-local-embeddings-for-dsgvo.md).
+- LLM: **swappable** provider. OpenAI OK in dev. Prod must use EU-hosted (Mistral La Plateforme, Aleph Alpha) or self-hosted (Llama/Mixtral via Ollama).
+- Observability: no Mastra `CloudExporter`, no US-cloud telemetry destinations.
+
+## Architecture commitments
+
+- **One agent, one combined vector index.** No per-source agents.
+- Every chunk carries `{ source_type, published_at, edition_no?, document_url, chunk_index }`.
+- Retrieval = vector top-K → re-rank by `similarity × source_weight × recency_decay`.
+  - `source_weight`: newspaper ≈ 1.5×, website ≈ 1×.
+  - `recency_decay`: exponential, half-life ~60 days, applied to `published_at`.
+- Both sources queried on every retrieval (no cascade).
+- Website ingestion is **pre-crawl** (sitemap-seeded), not live search. PDFs linked from the site go through the same parse pipeline as the newspaper PDFs.
+- **Vector store v1: LibSQL** (single-file, embedded). See [ADR 0002](./docs/adr/0002-vector-store-libsql.md).
+- **Embedding model: `BAAI/bge-m3`** via Ollama. See [ADR 0003](./docs/adr/0003-embedding-model-bge-m3.md).
+
+## Glossary
+
+- **newspaper** — the publication as a whole (biweekly).
+- **edition** — a single biweekly release. Carries `edition_no` and `published_at`. Latest edition = most authoritative.
+- **publisher website** — the companion HTML+PDF site for the newspaper.
+- **source_type** — `"newspaper" | "website"`. Tags every chunk.
+- **chunk** — one retrievable unit. Carries metadata for re-ranking.
+
+## Example data ≠ domain
+
+The sample editions in `docs/newspaper-samples/` are Kißlegg's municipal Amtsblatt, and the early target website is `kisslegg.de`. **Kißlegg is example data only.** The project is built to generalise to other German municipalities with the same publication shape — never hard-code Kißlegg-specific assumptions.
+
+## Out of scope
+
+- Live web search at query time.
+- LLM with live web access (no `web_search` tool).
+- Multi-tenant or per-user namespacing.
+- Any non-EU cloud in the runtime retrieval path.
+
+## Decisions (ADRs)
+
+See [`docs/adr/`](./docs/adr/). Read these before changing the architecture. Current ADRs:
+
+- [0001 — Local embeddings for DSGVO](./docs/adr/0001-local-embeddings-for-dsgvo.md)
+- [0002 — Vector store: LibSQL](./docs/adr/0002-vector-store-libsql.md)
+- [0003 — Embedding model: bge-m3](./docs/adr/0003-embedding-model-bge-m3.md)

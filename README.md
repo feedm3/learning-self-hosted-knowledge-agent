@@ -1,30 +1,42 @@
 # learning-self-hosted-knowledge-agent
 
-Welcome to your new [Mastra](https://mastra.ai/) project! We're excited to see what you'll build.
+A learning project: a self-hosted retrieval-augmented (RAG) agent built with [Mastra](https://mastra.ai/) that answers questions over two kinds of source: **biweekly newspaper PDFs** and a **publisher's website** (HTML plus PDFs linked from it). Replaces a managed setup of Ragie (PDF RAG) + Tavily (web search) with infrastructure I control.
 
-## Getting Started
+Status: **work in progress, learning repo.** Not production-ready.
 
-Start the development server:
+## Why self-host
+
+Target deployment: **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible — no document or query text leaves the EU in the runtime retrieval path. That rules out managed US-hosted RAG/search services and pushes embeddings to a local model. See [`CONTEXT.md`](./CONTEXT.md) for the full architectural picture and [`docs/adr/`](./docs/adr/) for the decisions behind it.
+
+## Setup
+
+Requires Node `>=22.13.0` and pnpm.
+
+```shell
+pnpm install
+cp .env.example .env   # add OPENAI_API_KEY (dev only; LLM is swappable for prod)
+```
+
+Embeddings run locally via [Ollama](https://ollama.com/) — install it, then pull the model:
+
+```shell
+ollama pull bge-m3
+```
+
+Start the dev server:
 
 ```shell
 pnpm run dev
 ```
 
-Open [http://localhost:4111](http://localhost:4111) in your browser to access [Mastra Studio](https://mastra.ai/docs/studio/overview). It provides an interactive UI for building and testing your agents, along with a REST API that exposes your Mastra application as a local service. This lets you start building without worrying about integration right away.
+Opens [Mastra Studio](http://localhost:4111) for interactive testing.
 
-You can start editing files inside the `src/mastra` directory. The development server will automatically reload whenever you make changes.
+## Sample data
 
-## Learn more
+`docs/newspaper-samples/` contains two Amtsblatt editions from Kißlegg (a small town in southern Germany). These are **example data only** — the project is built to generalise to other municipalities with the same publication shape.
 
-To learn more about Mastra, visit our [documentation](https://mastra.ai/docs/). Your bootstrapped project includes example code for [agents](https://mastra.ai/docs/agents/overview), [tools](https://mastra.ai/docs/agents/using-tools), [workflows](https://mastra.ai/docs/workflows/overview), [scorers](https://mastra.ai/docs/evals/overview), and [observability](https://mastra.ai/docs/observability/overview).
+## Documentation layout
 
-If you're new to AI agents, check out our [course](https://mastra.ai/learn) and [YouTube videos](https://youtube.com/@mastra-ai). You can also join our [Discord](https://discord.gg/BTYqqHKUrf) community to get help and share your projects.
-
-## Deploy to the Mastra platform
-
-The [Mastra platform](https://projects.mastra.ai) provides two products for deploying and managing AI applications built with the Mastra framework:
-
-- **Studio**: A hosted visual environment for testing agents, running workflows, and inspecting traces
-- **Server**: A production deployment target that runs your Mastra application as an API server
-
-Learn more in the [Mastra platform documentation](https://mastra.ai/docs/mastra-platform/overview).
+- [`CONTEXT.md`](./CONTEXT.md) — what this project is, the compliance constraint, architectural commitments, glossary. Read first.
+- [`AGENTS.md`](./AGENTS.md) — operating rules for anyone (human or LLM) writing code here.
+- [`docs/adr/`](./docs/adr/) — architectural decision records.
