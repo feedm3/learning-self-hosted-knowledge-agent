@@ -4,26 +4,38 @@ The shared mental model of this project. Read this before changing anything non-
 
 ## Purpose
 
-Self-hosted RAG agent over biweekly newspaper PDFs and a publisher's website (HTML + linked PDFs). Replaces a managed Ragie (PDF RAG) + Tavily (web search) setup with infrastructure we control. Built on Mastra.
+Self-hosted RAG agent over biweekly newspaper PDFs, with a planned extension for a publisher's website (HTML + linked PDFs). Replaces a managed Ragie (PDF RAG) + Tavily (web search) setup with infrastructure we control. Built on Mastra.
+
+Implemented today:
+
+- PDF ingestion workflow: parse PDF text, order multi-column pages, chunk, embed, and upsert into LibSQL.
+- Search workflow: embed the query locally and retrieve/rerank chunks from the combined chunk index.
+- One answer agent: calls the search workflow and answers in German from retrieved chunks.
+
+Not implemented yet:
+
+- Website sitemap crawl / HTML ingestion.
+- Website-linked PDF discovery.
+- Production EU/self-hosted LLM configuration.
 
 ## Compliance constraint (non-negotiable)
 
 Target deployment = **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible. **No document or query text may flow to a non-EU cloud provider in the runtime retrieval path.**
 
 - Embeddings: **local**, via Ollama. See [ADR 0001](./docs/adr/0001-local-embeddings-for-dsgvo.md).
-- LLM: **swappable** provider. OpenAI OK in dev. Prod must use EU-hosted (Mistral La Plateforme, Aleph Alpha) or self-hosted (Llama/Mixtral via Ollama).
+- LLM: **swappable** provider. The checked-in dev default is OpenRouter (`openai/gpt-5-mini`), configured through `OPENROUTER_API_KEY`. Prod must use EU-hosted (Mistral La Plateforme, Aleph Alpha) or self-hosted (Llama/Mixtral via Ollama), and must not send real municipal document chunks or sensitive citizen queries to a non-EU provider.
 - Observability: no Mastra `CloudExporter`, no US-cloud telemetry destinations.
 
 ## Architecture commitments
 
 - **One agent, one combined vector index.** No per-source agents.
-- Every chunk carries `{ source_type, published_at, edition_no?, document_url, chunk_index, page_number, edition_title }`.
+- Every chunk carries `{ text, source_type, published_at, edition_no, document_url, chunk_index, page_number, edition_title }`.
 - For v1 `document_url` is the source filename; a real clickable URL is reconstructed downstream from filename + `published_at`.
 - Retrieval = vector top-K → re-rank by `similarity × source_weight × recency_decay`.
   - `source_weight`: newspaper ≈ 1.5×, website ≈ 1×.
   - `recency_decay`: exponential, half-life ~60 days, applied to `published_at`.
-- Both sources queried on every retrieval (no cascade).
-- Website ingestion is **pre-crawl** (sitemap-seeded), not live search. PDFs linked from the site go through the same parse pipeline as the newspaper PDFs.
+- Intended retrieval once website ingestion exists: both source types queried on every retrieval (no cascade). Today the checked-in ingestion path only populates newspaper PDF chunks.
+- Website ingestion is intended to be **pre-crawl** (sitemap-seeded), not live search. PDFs linked from the site should go through the same parse pipeline as the newspaper PDFs. This is not implemented yet.
 - **Vector store v1: LibSQL** (single-file, embedded). See [ADR 0002](./docs/adr/0002-vector-store-libsql.md).
 - **Embedding model: `BAAI/bge-m3`** via Ollama. See [ADR 0003](./docs/adr/0003-embedding-model-bge-m3.md).
 - **PDF parser: pure-Node** (`unpdf` + custom column sort). See [ADR 0004](./docs/adr/0004-pdf-parser-pure-node.md).

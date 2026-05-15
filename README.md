@@ -1,8 +1,8 @@
 # learning-self-hosted-knowledge-agent
 
-A learning project: a self-hosted retrieval-augmented (RAG) agent built with [Mastra](https://mastra.ai/) that answers questions over two kinds of source: **biweekly newspaper PDFs** and a **publisher's website** (HTML plus PDFs linked from it). Replaces a managed setup of Ragie (PDF RAG) + Tavily (web search) with infrastructure I control.
+A learning project: a self-hosted retrieval-augmented (RAG) agent built with [Mastra](https://mastra.ai/) that answers questions over biweekly newspaper PDFs. The target architecture also includes a publisher's website (HTML plus PDFs linked from it), replacing a managed setup of Ragie (PDF RAG) + Tavily (web search) with infrastructure I control.
 
-Status: **work in progress, learning repo.** Not production-ready.
+Status: **work in progress, learning repo.** Not production-ready. The implemented path today is PDF ingestion/search plus a Mastra answer agent; website pre-crawl ingestion is still an architectural target, not checked-in code.
 
 ## Why self-host
 
@@ -14,10 +14,12 @@ Requires Node `>=22.13.0`, pnpm, and a Docker engine (Docker Desktop, [OrbStack]
 
 ```shell
 pnpm install
-cp .env.example .env   # add OPENAI_API_KEY (dev only; LLM is swappable for prod)
+cp .env.example .env   # add OPENROUTER_API_KEY for dev answer generation
 ```
 
 Embeddings run locally via [Ollama](https://ollama.com/) and the `BAAI/bge-m3` model. Both run in containers defined in [`compose.yaml`](./compose.yaml) — no manual install needed.
+
+The answer agent currently uses OpenRouter by default (`openai/gpt-5-mini`) for development only. Do not run that cloud LLM path with production municipal data or sensitive citizen queries; the LLM provider is intentionally swappable before production.
 
 ### Day-to-day dev (edit code on the host, hot-reload)
 

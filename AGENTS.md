@@ -27,7 +27,7 @@ pnpm run infra:down  # stop everything; named volumes persist
 
 ## Hard rule
 
-No code path may send document or query text to a non-EU cloud provider. This comes from [ADR 0001](./docs/adr/0001-local-embeddings-for-dsgvo.md) and is non-negotiable.
+No ingestion, embedding, retrieval, or production answer path may send document or query text to a non-EU cloud provider. This comes from [ADR 0001](./docs/adr/0001-local-embeddings-for-dsgvo.md) and is non-negotiable.
 
 ## Resources
 

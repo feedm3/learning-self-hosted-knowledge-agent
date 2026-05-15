@@ -17,7 +17,7 @@ A managed RAG service (Ragie, Pinecone Assistant, etc.) hides this transfer insi
 
 Embeddings run locally — initially via Ollama on the same host as the application — using an open-weights model. The specific model is chosen in [ADR 0003](./0003-embedding-model-bge-m3.md).
 
-The LLM call is a separate decision and remains swappable; it is not bound by this ADR (see project README "swap before production" note).
+The LLM call is a separate decision and remains swappable; it is not bound by this ADR's embedding decision. The current checked-in answer agent uses OpenRouter as a development default only. Production must swap this for an EU-hosted or self-hosted provider before using real municipal documents or sensitive citizen queries.
 
 ## Consequences
 
