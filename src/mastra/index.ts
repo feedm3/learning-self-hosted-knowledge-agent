@@ -6,10 +6,11 @@ import { MastraCompositeStore } from '@mastra/core/storage';
 import { Observability, DefaultExporter, SensitiveDataFilter } from '@mastra/observability';
 import { ingestPdfWorkflow } from './workflows/ingestPdf';
 import { searchChunksWorkflow } from './workflows/searchChunks';
+import { answerAgent } from './agents/answerAgent';
 
 export const mastra = new Mastra({
   workflows: { ingestPdfWorkflow, searchChunksWorkflow },
-  agents: {},
+  agents: { answerAgent },
   scorers: {},
   storage: new MastraCompositeStore({
     id: 'composite-storage',

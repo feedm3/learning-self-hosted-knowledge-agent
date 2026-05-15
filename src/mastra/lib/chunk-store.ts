@@ -1,21 +1,23 @@
 import { LibSQLVector } from '@mastra/libsql';
-import { z } from 'zod';
-import { chunkSchema, type Chunk } from './chunker';
+import type { Chunk } from './chunker';
 import { EMBEDDING_DIMENSION } from './embedder';
+import { rerank } from './rerank';
+import {
+  hitMetadataSchema,
+  type RerankOptions,
+  type RerankedHit,
+  type SearchHit,
+} from './search-types';
 
 export const CHUNKS_INDEX = 'chunks';
 const DB_URL = process.env.CHUNKS_DB_URL ?? 'file:./chunks.db';
 
-export const hitMetadataSchema = chunkSchema;
+// 6x over-fetch gives the recency/source rerank a meaningful candidate pool
+// without scanning the full corpus on every query.
+export const DEFAULT_OVERFETCH_MULTIPLIER = 6;
 
-export const hitSchema = z.object({
-  id: z.string(),
-  score: z.number(),
-  text: z.string(),
-  metadata: hitMetadataSchema.omit({ text: true }),
-});
-
-export type SearchHit = z.infer<typeof hitSchema>;
+export { hitSchema, rerankedHitSchema, hitMetadataSchema } from './search-types';
+export type { SearchHit, RerankedHit, RerankOptions };
 
 let cached: LibSQLVector | null = null;
 let indexReady: Promise<void> | null = null;
@@ -65,19 +67,27 @@ export async function replaceDocumentChunks(
   });
 }
 
+export interface SearchOptions {
+  overFetchMultiplier?: number;
+  rerank?: RerankOptions;
+}
+
 export async function searchTopK(
   queryVector: number[],
   topK: number,
-): Promise<SearchHit[]> {
+  opts: SearchOptions = {},
+): Promise<RerankedHit[]> {
   await ensureIndex();
+  const overFetch = topK * (opts.overFetchMultiplier ?? DEFAULT_OVERFETCH_MULTIPLIER);
   const results = await getChunkStore().query({
     indexName: CHUNKS_INDEX,
     queryVector,
-    topK,
+    topK: overFetch,
   });
-  return results.map((r) => {
+  const hits: SearchHit[] = results.map((r) => {
     const parsed = hitMetadataSchema.parse(r.metadata);
     const { text, ...metadata } = parsed;
     return { id: r.id, score: r.score, text, metadata };
   });
+  return rerank(hits, opts.rerank).slice(0, topK);
 }

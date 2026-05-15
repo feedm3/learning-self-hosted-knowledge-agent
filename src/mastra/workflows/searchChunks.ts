@@ -1,7 +1,7 @@
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { z } from 'zod';
 import { embedSingle } from '../lib/embedder';
-import { searchTopK, hitSchema } from '../lib/chunk-store';
+import { searchTopK, rerankedHitSchema } from '../lib/chunk-store';
 
 const search = createStep({
   id: 'search',
@@ -10,7 +10,7 @@ const search = createStep({
     topK: z.number().int().positive().default(5),
   }),
   outputSchema: z.object({
-    hits: z.array(hitSchema),
+    hits: z.array(rerankedHitSchema),
   }),
   execute: async ({ inputData }) => {
     const queryVector = await embedSingle(inputData.query);
@@ -26,7 +26,7 @@ export const searchChunksWorkflow = createWorkflow({
     topK: z.number().int().positive().default(5),
   }),
   outputSchema: z.object({
-    hits: z.array(hitSchema),
+    hits: z.array(rerankedHitSchema),
   }),
 })
   .then(search)
