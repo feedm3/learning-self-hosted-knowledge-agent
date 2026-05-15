@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "mastra dev",
     "build": "mastra build",
-    "start": "mastra start"
+    "start": "mastra start",
+    "infra:dev": "docker compose up -d ollama ollama-pull-bge-m3",
+    "infra:up": "docker compose up -d --build",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs -f"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +28,7 @@
     "@mastra/loggers": "^1.1.1",
     "@mastra/memory": "^1.18.0",
     "@mastra/observability": "^1.12.0",
+    "unpdf": "^1.6.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {

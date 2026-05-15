@@ -10,26 +10,31 @@ Target deployment: **German municipalities** (Städte/Kommunen). The pipeline mu
 
 ## Setup
 
-Requires Node `>=22.13.0` and pnpm.
+Requires Node `>=22.13.0`, pnpm, and a Docker engine (Docker Desktop, [OrbStack](https://orbstack.dev/), Colima, or `docker.io` on Linux).
 
 ```shell
 pnpm install
 cp .env.example .env   # add OPENAI_API_KEY (dev only; LLM is swappable for prod)
 ```
 
-Embeddings run locally via [Ollama](https://ollama.com/) — install it, then pull the model:
+Embeddings run locally via [Ollama](https://ollama.com/) and the `BAAI/bge-m3` model. Both run in containers defined in [`compose.yaml`](./compose.yaml) — no manual install needed.
+
+### Day-to-day dev (edit code on the host, hot-reload)
 
 ```shell
-ollama pull bge-m3
+pnpm run infra:dev    # starts Ollama, pulls bge-m3 on first run
+pnpm run dev          # Mastra Studio on http://localhost:4111
 ```
 
-Start the dev server:
+### Full stack (matches the server deploy shape)
 
 ```shell
-pnpm run dev
+pnpm run infra:up     # builds the app image, starts Ollama + app
+pnpm run infra:logs   # tail logs
+pnpm run infra:down   # stop everything (named volumes persist)
 ```
 
-Opens [Mastra Studio](http://localhost:4111) for interactive testing.
+App is reachable on `http://localhost:4111`. State (`chunks.db`, `mastra.db`, model cache) is persisted in named volumes; `docker compose down -v` wipes them.
 
 ## Sample data
 

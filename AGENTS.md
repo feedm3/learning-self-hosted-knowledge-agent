@@ -9,9 +9,15 @@ Load the `mastra` skill. Mastra's APIs change frequently between versions; cache
 ## Commands
 
 ```bash
-pnpm run dev    # Mastra Studio at localhost:4111 (long-running)
-pnpm run build  # use to verify changes compile
+pnpm run infra:dev   # start Ollama + pull bge-m3 (one-time on first run)
+pnpm run dev         # Mastra Studio at localhost:4111 (long-running)
+pnpm run build       # use to verify changes compile
+
+pnpm run infra:up    # full stack incl. app container (server-deploy shape)
+pnpm run infra:down  # stop everything; named volumes persist
 ```
+
+`infra:dev` is the loop for editing source; `infra:up` mirrors the prod deploy. See [`compose.yaml`](./compose.yaml) for what the services do.
 
 ## Conventions
 

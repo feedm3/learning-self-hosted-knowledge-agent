@@ -17,7 +17,8 @@ Target deployment = **German municipalities** (Städte/Kommunen). The pipeline m
 ## Architecture commitments
 
 - **One agent, one combined vector index.** No per-source agents.
-- Every chunk carries `{ source_type, published_at, edition_no?, document_url, chunk_index }`.
+- Every chunk carries `{ source_type, published_at, edition_no?, document_url, chunk_index, page_number, edition_title }`.
+- For v1 `document_url` is the source filename; a real clickable URL is reconstructed downstream from filename + `published_at`.
 - Retrieval = vector top-K → re-rank by `similarity × source_weight × recency_decay`.
   - `source_weight`: newspaper ≈ 1.5×, website ≈ 1×.
   - `recency_decay`: exponential, half-life ~60 days, applied to `published_at`.
@@ -25,6 +26,7 @@ Target deployment = **German municipalities** (Städte/Kommunen). The pipeline m
 - Website ingestion is **pre-crawl** (sitemap-seeded), not live search. PDFs linked from the site go through the same parse pipeline as the newspaper PDFs.
 - **Vector store v1: LibSQL** (single-file, embedded). See [ADR 0002](./docs/adr/0002-vector-store-libsql.md).
 - **Embedding model: `BAAI/bge-m3`** via Ollama. See [ADR 0003](./docs/adr/0003-embedding-model-bge-m3.md).
+- **PDF parser: pure-Node** (`unpdf` + custom column sort). See [ADR 0004](./docs/adr/0004-pdf-parser-pure-node.md).
 
 ## Glossary
 
@@ -52,3 +54,4 @@ See [`docs/adr/`](./docs/adr/). Read these before changing the architecture. Cur
 - [0001 — Local embeddings for DSGVO](./docs/adr/0001-local-embeddings-for-dsgvo.md)
 - [0002 — Vector store: LibSQL](./docs/adr/0002-vector-store-libsql.md)
 - [0003 — Embedding model: bge-m3](./docs/adr/0003-embedding-model-bge-m3.md)
+- [0004 — PDF parser: pure-Node](./docs/adr/0004-pdf-parser-pure-node.md)

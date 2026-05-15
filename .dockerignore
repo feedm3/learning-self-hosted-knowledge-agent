@@ -1,0 +1,15 @@
+node_modules
+.mastra
+dist
+.git
+.idea
+.agents
+.env
+.env.*
+*.db
+*.db-*
+*.duckdb
+*.duckdb.wal
+scripts
+docs/newspaper-samples
+output.txt

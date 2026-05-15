@@ -1,0 +1,62 @@
+# Local + server infra for the self-hosted RAG agent.
+#
+# Dev (Mac, edit-iterate-debug):
+#   docker compose up -d ollama ollama-pull-bge-m3   # just Ollama + model pull
+#   pnpm run dev                                     # Mastra Studio on host -> localhost:11434
+#
+# Server (or full local stack):
+#   docker compose up -d --build                     # builds + runs app, Ollama, model pull
+#   docker compose down                              # stop (volumes persist)
+#   docker compose down -v                           # stop + wipe model cache and app state
+#
+# After `up`: app is on http://<host>:4111
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  ollama-pull-bge-m3:
+    image: ollama/ollama:latest
+    container_name: rag-ollama-pull-bge-m3
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["sh", "-c", "ollama pull bge-m3"]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-app
+    depends_on:
+      ollama-pull-bge-m3:
+        condition: service_completed_successfully
+    ports:
+      - "4111:4111"
+    environment:
+      OLLAMA_URL: http://ollama:11434/v1
+      CHUNKS_DB_URL: file:/app/state/chunks.db
+      MASTRA_DB_URL: file:/app/state/mastra.db
+    volumes:
+      - app-state:/app/state
+      - ./docs/newspaper-samples:/app/docs/newspaper-samples:ro
+    restart: unless-stopped
+
+volumes:
+  ollama-models:
+  app-state:
