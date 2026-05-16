@@ -10,12 +10,14 @@ export interface DocumentMetadata {
   document_url: string;
 }
 
-interface SlugConfig {
+export interface SlugConfig {
   edition_title: string;
   source_type: SourceType;
 }
 
-const SLUG_MAP: Record<string, SlugConfig> = {
+export type SlugMap = Record<string, SlugConfig>;
+
+export const SLUG_MAP: SlugMap = {
   'der-kisslegger': { edition_title: 'Der Kißlegger', source_type: 'newspaper' },
 };
 
@@ -23,7 +25,10 @@ const FILENAME_PATTERN = /^(\d{2})-(\d{2})-(\d{4})-(.+)\.pdf$/i;
 
 export class FilenameContractError extends Error {}
 
-export function parseDocumentMetadata(filePath: string): DocumentMetadata {
+export function parseDocumentMetadata(
+  filePath: string,
+  slugMap: SlugMap = SLUG_MAP,
+): DocumentMetadata {
   const filename = path.basename(filePath);
   const match = FILENAME_PATTERN.exec(filename);
   if (!match) {
@@ -39,10 +44,10 @@ export function parseDocumentMetadata(filePath: string): DocumentMetadata {
     );
   }
 
-  const slugConfig = SLUG_MAP[slug.toLowerCase()];
+  const slugConfig = slugMap[slug.toLowerCase()];
   if (!slugConfig) {
     throw new FilenameContractError(
-      `Unknown slug "${slug}" in "${filename}". Add it to SLUG_MAP in metadata.ts.`,
+      `Unknown slug "${slug}" in "${filename}" — no matching SlugConfig.`,
     );
   }
 

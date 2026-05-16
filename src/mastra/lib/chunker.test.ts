@@ -63,5 +63,12 @@ describe('chunkDocument', () => {
     const chunks = chunkDocument([page(1, [longParagraph])], META);
     expect(chunks.length).toBeGreaterThan(1);
     expect(chunks.every((c) => c.page_number === 1)).toBe(true);
+
+    // Every resulting chunk must respect the ~800-token hard cap. estimateTokens
+    // is ceil(chars / 4), so the body must stay at or below 3200 chars.
+    for (const chunk of chunks) {
+      const body = chunk.text.slice(chunk.text.indexOf('\n') + 1);
+      expect(body.length).toBeLessThanOrEqual(3200);
+    }
   });
 });

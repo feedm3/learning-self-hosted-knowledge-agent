@@ -9,15 +9,17 @@ Load the `mastra` skill. Mastra's APIs change frequently between versions; cache
 ## Commands
 
 ```bash
-pnpm run infra:dev   # start Ollama + pull bge-m3 (one-time on first run)
-pnpm run dev         # Mastra Studio at localhost:4111 (long-running)
-pnpm run build       # use to verify changes compile
-
-pnpm run infra:up    # full stack incl. app container (server-deploy shape)
-pnpm run infra:down  # stop everything; named volumes persist
+pnpm run infra:dev    # Ollama + bge-m3 pull (one-time); needed for dev and integration tests
+pnpm run dev          # Mastra Studio at localhost:4111
+pnpm run build        # Mastra production build
+pnpm run typecheck    # tsc over src/ and test/
+pnpm test             # unit suite — pure logic, no infra
+pnpm test:integration # real PDF parse/embed/store/search; embedding tests skip if Ollama is down
+pnpm run infra:up     # full stack incl. app container (mirrors the server deploy)
+pnpm run infra:down   # stop everything; named volumes persist
 ```
 
-`infra:dev` is the loop for editing source; `infra:up` mirrors the prod deploy. See [`compose.yaml`](./compose.yaml) for what the services do.
+`infra:dev` is the loop for editing source; `infra:up` mirrors the prod deploy. See [`compose.yaml`](./compose.yaml) for the services.
 
 ## Conventions
 

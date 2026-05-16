@@ -6,6 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "tsc --noEmit",
     "dev": "mastra dev",
     "build": "mastra build",
     "start": "mastra start",
@@ -35,6 +37,7 @@
   "devDependencies": {
     "@types/node": "^25.8.0",
     "mastra": "^1.9.1",
+    "pdf-lib": "^1.17.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   }

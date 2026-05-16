@@ -11,6 +11,9 @@
     "outDir": "dist"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*",
+    "vitest.config.ts",
+    "vitest.integration.config.ts"
   ]
 }
