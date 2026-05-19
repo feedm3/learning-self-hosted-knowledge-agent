@@ -1,13 +1,12 @@
-import type { Chunk } from '../mastra/lib/chunker';
-import { embedTexts } from '../mastra/lib/embedder';
+import type { Document } from '../mastra/lib/chunker';
+import { indexDocument } from '../mastra/lib/document-index';
 import {
   deleteDocument,
   listWebsiteDocumentUrls,
-  replaceDocumentChunks,
 } from '../mastra/lib/chunk-store';
 import { extractPage } from './extract-html';
 import { chunkHtmlPage } from './chunk-html';
-import { chunkSitePdf } from './site-pdf';
+import { sitePdfToDocument } from './site-pdf';
 import {
   cacheFileAbsPath,
   readCachedText,
@@ -44,27 +43,27 @@ export async function ingestCrawlCache(config: SiteConfig): Promise<IngestReport
     done += 1;
     const prefix = `[${String(done).padStart(4)}/${ingestable.length}]`;
     try {
-      let chunks: Chunk[];
+      let document: Document;
       if (entry.kind === 'html') {
         const html = await readCachedText(entry.cacheFile);
-        chunks = chunkHtmlPage(extractPage(html, entry.url, config));
+        document = chunkHtmlPage(extractPage(html, entry.url, config));
       } else {
-        chunks = await chunkSitePdf(
+        document = await sitePdfToDocument(
           cacheFileAbsPath(entry.cacheFile),
           entry.url,
           entry.anchorText ?? '',
         );
       }
-      await storeChunks(chunks);
+      await indexDocument(document);
       pages.push({
         url: entry.url,
         title: entry.title ?? entry.url,
         publishedAt: entry.editorialDate ?? null,
-        chunkCount: chunks.length,
+        chunkCount: document.bodies.length,
         kind: entry.kind,
       });
       console.log(
-        `${prefix} ok     ${entry.kind}  ${String(chunks.length).padStart(3)} chunk(s)  ${entry.url}`,
+        `${prefix} ok     ${entry.kind}  ${String(document.bodies.length).padStart(3)} chunk(s)  ${entry.url}`,
       );
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
@@ -98,12 +97,6 @@ export async function ingestCrawlCache(config: SiteConfig): Promise<IngestReport
     errors,
     swept,
   };
-}
-
-async function storeChunks(chunks: Chunk[]): Promise<void> {
-  if (chunks.length === 0) return;
-  const vectors = await embedTexts(chunks.map((c) => c.text));
-  await replaceDocumentChunks(chunks, vectors);
 }
 
 function formatAge(ms: number): string {

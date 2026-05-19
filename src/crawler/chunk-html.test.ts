@@ -24,69 +24,65 @@ describe('buildWebsitePrefix', () => {
 });
 
 describe('chunkHtmlPage', () => {
-  it('tags every chunk as a website chunk with no page number', () => {
-    const [chunk] = chunkHtmlPage(
+  it('derives website document metadata from the page', () => {
+    const doc = chunkHtmlPage(
       page([{ headingPath: ['A'], paragraphs: ['Kurzer Text.'] }], '2026-05-05'),
     );
-    expect(chunk).toMatchObject({
+    expect(doc.metadata).toEqual({
       source_type: 'website',
-      page_number: null,
-      edition_no: null,
       published_at: '2026-05-05',
+      edition_no: null,
       document_title: 'Test-Seite',
       document_url: URL,
     });
   });
 
-  it('carries the heading path into the chunk prefix', () => {
-    const [chunk] = chunkHtmlPage(
+  it('gives every body a null page number', () => {
+    const doc = chunkHtmlPage(
+      page([{ headingPath: ['A'], paragraphs: ['Kurzer Text.'] }]),
+    );
+    expect(doc.bodies.every((b) => b.page_number === null)).toBe(true);
+  });
+
+  it('carries the heading path into the body prefix', () => {
+    const doc = chunkHtmlPage(
       page([{ headingPath: ['Service', 'Müll'], paragraphs: ['Abfuhrtermine.'] }]),
     );
-    expect(chunk.text).toBe(
+    expect(doc.bodies[0].text).toBe(
       `[Test-Seite › Service › Müll – ${URL}]\nAbfuhrtermine.`,
     );
   });
 
-  it('merges small consecutive sections under the same h1 into one chunk', () => {
-    const chunks = chunkHtmlPage(
+  it('merges small consecutive sections under the same h1 into one body', () => {
+    const doc = chunkHtmlPage(
       page([
         { headingPath: ['Rathaus'], paragraphs: ['Kurz eins.'] },
         { headingPath: ['Rathaus', 'Unterpunkt'], paragraphs: ['Kurz zwei.'] },
       ]),
     );
-    expect(chunks).toHaveLength(1);
-    expect(chunks[0].text).toContain('Kurz eins.');
-    expect(chunks[0].text).toContain('Kurz zwei.');
+    expect(doc.bodies).toHaveLength(1);
+    expect(doc.bodies[0].text).toContain('Kurz eins.');
+    expect(doc.bodies[0].text).toContain('Kurz zwei.');
   });
 
   it('never merges sections across an h1 boundary', () => {
-    const chunks = chunkHtmlPage(
+    const doc = chunkHtmlPage(
       page([
         { headingPath: ['Thema A'], paragraphs: ['Text A.'] },
         { headingPath: ['Thema B'], paragraphs: ['Text B.'] },
       ]),
     );
-    expect(chunks).toHaveLength(2);
+    expect(doc.bodies).toHaveLength(2);
   });
 
-  it('splits a section larger than the hard cap into multiple chunks', () => {
+  it('splits a section larger than the hard cap into multiple bodies', () => {
     // ~5000 chars -> ~1250 tokens, well over the 800-token hard cap.
     const huge = 'Das ist ein vollständiger Satz. '.repeat(160);
-    const chunks = chunkHtmlPage(page([{ headingPath: ['Groß'], paragraphs: [huge] }]));
-    expect(chunks.length).toBeGreaterThan(1);
-    for (const chunk of chunks) {
-      const body = chunk.text.slice(chunk.text.indexOf('\n') + 1);
-      expect(body.length).toBeLessThanOrEqual(3200);
+    const doc = chunkHtmlPage(page([{ headingPath: ['Groß'], paragraphs: [huge] }]));
+    expect(doc.bodies.length).toBeGreaterThan(1);
+    for (const body of doc.bodies) {
+      const text = body.text.slice(body.text.indexOf('\n') + 1);
+      expect(text.length).toBeLessThanOrEqual(3200);
     }
-  });
-
-  it('assigns monotonically increasing chunk_index', () => {
-    const chunks = chunkHtmlPage(
-      page([
-        { headingPath: ['A'], paragraphs: ['eins'] },
-        { headingPath: ['B'], paragraphs: ['zwei'] },
-      ]),
-    );
-    expect(chunks.map((c) => c.chunk_index)).toEqual([0, 1]);
   });
 });

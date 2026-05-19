@@ -1,14 +1,17 @@
 import path from 'node:path';
+import { z } from 'zod';
 
 export type SourceType = 'newspaper' | 'website';
 
-export interface DocumentMetadata {
-  source_type: SourceType;
-  published_at: string | null;
-  document_title: string;
-  edition_no: number | null;
-  document_url: string;
-}
+export const documentMetadataSchema = z.object({
+  source_type: z.enum(['newspaper', 'website']),
+  published_at: z.string().nullable(),
+  document_title: z.string(),
+  edition_no: z.number().nullable(),
+  document_url: z.string(),
+});
+
+export type DocumentMetadata = z.infer<typeof documentMetadataSchema>;
 
 export interface SlugConfig {
   document_title: string;

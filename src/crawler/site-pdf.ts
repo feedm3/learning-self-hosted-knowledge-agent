@@ -1,19 +1,16 @@
-import { parsePdf } from '../mastra/lib/pdf-parser';
-import { orderPage } from '../mastra/lib/column-sort';
-import { chunkDocument, type Chunk } from '../mastra/lib/chunker';
+import { pdfFileToDocument } from '../mastra/lib/pdf-document';
+import type { Document } from '../mastra/lib/chunker';
 import type { DocumentMetadata } from '../mastra/lib/metadata';
 
-// Parses a website-linked PDF (already cached on disk) into website chunks. The
-// PDF text layer goes through the same pipeline as the newspaper editions; only
+// Turns a website-linked PDF (already cached on disk) into a website document.
+// It runs through the same PDF extraction seam as the newspaper editions; only
 // the metadata differs — no edition, no publication date, document_title from
 // the anchor link text that pointed at the PDF.
-export async function chunkSitePdf(
+export async function sitePdfToDocument(
   filePath: string,
   url: string,
   anchorText: string,
-): Promise<Chunk[]> {
-  const parsed = await parsePdf(filePath);
-  const orderedPages = parsed.pages.map(orderPage);
+): Promise<Document> {
   const meta: DocumentMetadata = {
     source_type: 'website',
     published_at: null,
@@ -21,5 +18,6 @@ export async function chunkSitePdf(
     edition_no: null,
     document_url: url,
   };
-  return chunkDocument(orderedPages, meta);
+  const { document } = await pdfFileToDocument(filePath, meta);
+  return document;
 }

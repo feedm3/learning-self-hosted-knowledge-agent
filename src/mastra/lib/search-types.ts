@@ -17,9 +17,3 @@ export const rerankedHitSchema = hitSchema.extend({
 });
 
 export type RerankedHit = z.infer<typeof rerankedHitSchema>;
-
-export interface RerankOptions {
-  now?: Date;
-  halfLifeDays?: number;
-  sourceWeights?: Record<string, number>;
-}

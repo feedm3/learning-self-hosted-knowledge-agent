@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { embedSingle } from '../../src/mastra/lib/embedder';
 import { searchTopK, type RerankedHit } from '../../src/mastra/lib/chunk-store';
-import { rerank } from '../../src/mastra/lib/rerank';
+import { rerank, DEFAULT_RETRIEVAL_POLICY } from '../../src/mastra/lib/retrieval-policy';
 import { ollamaUp } from './helpers/ollama';
 import { ingestFile, TEST_SLUG_MAP } from './helpers/pipeline';
 import { writeFixturePdf } from './helpers/pdf';
@@ -36,7 +36,7 @@ describe.skipIf(!ollamaUp)('recency rerank picks the newer edition', () => {
   beforeAll(async () => {
     await ingestFile(await writeFixturePdf(OLD_FILE, bulletin(20)), TEST_SLUG_MAP);
     await ingestFile(await writeFixturePdf(NEW_FILE, bulletin(30)), TEST_SLUG_MAP);
-    hits = await searchTopK(await embedSingle(QUERY), 5, { rerank: { now: NOW } });
+    hits = await searchTopK(await embedSingle(QUERY), 5, { now: NOW });
   });
 
   it('ranks the 2026 edition first and returns its value (30)', () => {
@@ -63,7 +63,8 @@ describe.skipIf(!ollamaUp)('recency rerank picks the newer edition', () => {
     // collapses back to the raw near-tie — recency was doing the work.
     const withoutRecency = rerank(
       hits.map((h) => ({ id: h.id, score: h.raw_score, text: h.text, metadata: h.metadata })),
-      { now: NOW, halfLifeDays: Number.POSITIVE_INFINITY },
+      { ...DEFAULT_RETRIEVAL_POLICY, halfLifeDays: Number.POSITIVE_INFINITY },
+      NOW,
     );
     const flatNew = withoutRecency.find((h) => h.metadata.document_url === NEW_FILE)!;
     const flatOld = withoutRecency.find((h) => h.metadata.document_url === OLD_FILE)!;

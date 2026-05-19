@@ -1,4 +1,8 @@
-import { chunkDocument, type Chunk } from '../../../src/mastra/lib/chunker';
+import {
+  chunkDocument,
+  documentToChunks,
+  type Chunk,
+} from '../../../src/mastra/lib/chunker';
 import { orderPage } from '../../../src/mastra/lib/column-sort';
 import { embedTexts } from '../../../src/mastra/lib/embedder';
 import { replaceDocumentChunks } from '../../../src/mastra/lib/chunk-store';
@@ -24,11 +28,10 @@ export async function ingestFile(
 ): Promise<{ meta: DocumentMetadata; chunks: Chunk[] }> {
   const meta = parseDocumentMetadata(filePath, slugMap);
   const parsed = await parsePdf(filePath);
-  const orderedPages = parsed.pages.map(orderPage);
-  const chunks = chunkDocument(orderedPages, meta);
-  const vectors = await embedTexts(chunks.map((c) => c.text));
-  await replaceDocumentChunks(chunks, vectors);
-  return { meta, chunks };
+  const document = chunkDocument(parsed.pages.map(orderPage), meta);
+  const vectors = await embedTexts(document.bodies.map((b) => b.text));
+  await replaceDocumentChunks(document, vectors);
+  return { meta, chunks: documentToChunks(document) };
 }
 
 // Splits a chunk's stored text back into its [prefix] line and body paragraphs.

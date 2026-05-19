@@ -53,6 +53,8 @@ Target deployment = **German municipalities** (Städte/Kommunen). The pipeline m
 - **editorial date** — a website page's `article:modified_time` (fallback `article:published_time`). Used as `published_at` for website chunks. Absent ⇒ the chunk has no `published_at` and does not decay.
 - **source_type** — `"newspaper" | "website"`. Tags every chunk.
 - **chunk** — one retrievable unit. Carries metadata for re-ranking.
+- **indexing** — embedding a document's chunks locally and upserting them into the combined chunk index, replacing any earlier chunks of the same document. The shared tail of every ingestion path (newspaper PDF, website HTML, website PDF).
+- **retrieval policy** — the tunable knobs of the retrieval ranking stage, bundled in one place: vector over-fetch multiplier, per-source weights, and recency half-life.
 
 ## Example data ≠ domain
 

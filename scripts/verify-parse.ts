@@ -1,7 +1,7 @@
 import { parseDocumentMetadata, checkDateAgainstPageOne } from '../src/mastra/lib/metadata.ts';
 import { parsePdf } from '../src/mastra/lib/pdf-parser.ts';
 import { orderPage } from '../src/mastra/lib/column-sort.ts';
-import { chunkDocument } from '../src/mastra/lib/chunker.ts';
+import { chunkDocument, documentToChunks } from '../src/mastra/lib/chunker.ts';
 
 const filePath = process.argv[2] ?? './docs/newspaper-samples/25-04-2026-der-kisslegger.pdf';
 
@@ -19,7 +19,7 @@ const dateCheck = meta.published_at
   : 'no published_at in metadata';
 console.log('page-1 date check:', dateCheck);
 
-const chunks = chunkDocument(ordered, meta);
+const chunks = documentToChunks(chunkDocument(ordered, meta));
 console.log(`chunk count: ${chunks.length}`);
 console.log(`chunks per page:`,
   chunks.reduce<Record<number, number>>((acc, c) => {

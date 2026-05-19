@@ -1,5 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { chunkDocument, type Chunk } from '../../src/mastra/lib/chunker';
+import {
+  chunkDocument,
+  documentToChunks,
+  type Chunk,
+} from '../../src/mastra/lib/chunker';
 import { orderPage } from '../../src/mastra/lib/column-sort';
 import { parseDocumentMetadata } from '../../src/mastra/lib/metadata';
 import { parsePdf } from '../../src/mastra/lib/pdf-parser';
@@ -38,7 +42,7 @@ describe('walkthrough: how a PDF becomes chunks', () => {
     const filePath = await writeFixturePdf(FILE, [SHORT_PARAGRAPHS, [LONG_PARAGRAPH]]);
     const meta = parseDocumentMetadata(filePath, TEST_SLUG_MAP);
     const parsed = await parsePdf(filePath);
-    chunks = chunkDocument(parsed.pages.map(orderPage), meta);
+    chunks = documentToChunks(chunkDocument(parsed.pages.map(orderPage), meta));
   });
 
   it('produces more chunks than pages — content is split, not page-per-chunk', () => {

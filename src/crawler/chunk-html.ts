@@ -2,8 +2,10 @@ import {
   estimateTokens,
   packParagraphs,
   TARGET_TOKENS,
-  type Chunk,
+  type ChunkBody,
+  type Document,
 } from '../mastra/lib/chunker';
+import type { DocumentMetadata } from '../mastra/lib/metadata';
 import type { ExtractedPage, Section } from './extract-html';
 
 export function buildWebsitePrefix(
@@ -51,10 +53,16 @@ function groupSections(sections: Section[]): Group[] {
   return groups;
 }
 
-export function chunkHtmlPage(page: ExtractedPage): Chunk[] {
-  const chunks: Chunk[] = [];
-  let chunkIndex = 0;
+export function chunkHtmlPage(page: ExtractedPage): Document {
+  const metadata: DocumentMetadata = {
+    source_type: 'website',
+    published_at: page.publishedAt,
+    document_title: page.documentTitle,
+    edition_no: null,
+    document_url: page.url,
+  };
 
+  const bodies: ChunkBody[] = [];
   for (const group of groupSections(page.sections)) {
     const prefix = buildWebsitePrefix(
       page.documentTitle,
@@ -62,18 +70,8 @@ export function chunkHtmlPage(page: ExtractedPage): Chunk[] {
       page.url,
     );
     for (const body of packParagraphs(group.paragraphs)) {
-      chunks.push({
-        text: `${prefix}\n${body}`,
-        chunk_index: chunkIndex,
-        page_number: null,
-        source_type: 'website',
-        published_at: page.publishedAt,
-        edition_no: null,
-        document_title: page.documentTitle,
-        document_url: page.url,
-      });
-      chunkIndex += 1;
+      bodies.push({ text: `${prefix}\n${body}`, page_number: null });
     }
   }
-  return chunks;
+  return { metadata, bodies };
 }

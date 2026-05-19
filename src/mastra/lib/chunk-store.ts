@@ -1,25 +1,20 @@
 import { LibSQLVector } from '@mastra/libsql';
 import { createClient, type Client } from '@libsql/client';
 import { dataFileUrl } from './data-dir';
-import type { Chunk } from './chunker';
+import { documentToChunks, type Document } from './chunker';
 import { EMBEDDING_DIMENSION } from './embedder';
-import { rerank } from './rerank';
 import {
-  hitMetadataSchema,
-  type RerankOptions,
-  type RerankedHit,
-  type SearchHit,
-} from './search-types';
+  rerank,
+  DEFAULT_RETRIEVAL_POLICY,
+  type RetrievalPolicy,
+} from './retrieval-policy';
+import { hitMetadataSchema, type RerankedHit, type SearchHit } from './search-types';
 
 export const CHUNKS_INDEX = 'chunks';
 const DB_URL = process.env.CHUNKS_DB_URL ?? dataFileUrl('chunks.db');
 
-// 6x over-fetch gives the recency/source rerank a meaningful candidate pool
-// without scanning the full corpus on every query.
-export const DEFAULT_OVERFETCH_MULTIPLIER = 6;
-
 export { hitSchema, rerankedHitSchema, hitMetadataSchema } from './search-types';
-export type { SearchHit, RerankedHit, RerankOptions };
+export type { SearchHit, RerankedHit };
 
 let cached: LibSQLVector | null = null;
 let indexReady: Promise<void> | null = null;
@@ -43,20 +38,17 @@ function ensureIndex(): Promise<void> {
 }
 
 export async function replaceDocumentChunks(
-  chunks: Chunk[],
+  doc: Document,
   vectors: number[][],
 ): Promise<void> {
-  if (chunks.length === 0) return;
-  if (chunks.length !== vectors.length) {
+  if (doc.bodies.length === 0) return;
+  if (doc.bodies.length !== vectors.length) {
     throw new Error(
-      `chunks.length (${chunks.length}) !== vectors.length (${vectors.length})`,
+      `bodies.length (${doc.bodies.length}) !== vectors.length (${vectors.length})`,
     );
   }
-  const document_url = chunks[0].document_url;
-  if (!chunks.every((c) => c.document_url === document_url)) {
-    throw new Error('all chunks must share the same document_url');
-  }
 
+  const chunks = documentToChunks(doc);
   await ensureIndex();
   const ids = chunks.map((c) => `${c.document_url}#${c.chunk_index}`);
 
@@ -65,7 +57,7 @@ export async function replaceDocumentChunks(
     vectors,
     metadata: chunks,
     ids,
-    deleteFilter: { document_url },
+    deleteFilter: { document_url: doc.metadata.document_url },
   });
 }
 
@@ -104,8 +96,9 @@ export async function deleteDocument(document_url: string): Promise<void> {
 }
 
 export interface SearchOptions {
-  overFetchMultiplier?: number;
-  rerank?: RerankOptions;
+  policy?: RetrievalPolicy;
+  // Clock seam for recency decay; defaults to the current time.
+  now?: Date;
 }
 
 export async function searchTopK(
@@ -114,7 +107,8 @@ export async function searchTopK(
   opts: SearchOptions = {},
 ): Promise<RerankedHit[]> {
   await ensureIndex();
-  const overFetch = topK * (opts.overFetchMultiplier ?? DEFAULT_OVERFETCH_MULTIPLIER);
+  const policy = opts.policy ?? DEFAULT_RETRIEVAL_POLICY;
+  const overFetch = topK * policy.overFetchMultiplier;
   const results = await getChunkStore().query({
     indexName: CHUNKS_INDEX,
     queryVector,
@@ -125,5 +119,5 @@ export async function searchTopK(
     const { text, ...metadata } = parsed;
     return { id: r.id, score: r.score, text, metadata };
   });
-  return rerank(hits, opts.rerank).slice(0, topK);
+  return rerank(hits, policy, opts.now).slice(0, topK);
 }

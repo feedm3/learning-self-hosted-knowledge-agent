@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import type { OrderedPage } from './column-sort';
-import { germanFormatDate, type DocumentMetadata } from './metadata';
+import {
+  documentMetadataSchema,
+  germanFormatDate,
+  type DocumentMetadata,
+} from './metadata';
 
+// The stored shape of one chunk in the vector index: a chunk body with the
+// document metadata stamped onto it. Built only at the storage edge, by
+// documentToChunks.
 export const chunkSchema = z.object({
   text: z.string(),
   chunk_index: z.number().int().nonnegative(),
@@ -14,6 +21,26 @@ export const chunkSchema = z.object({
 });
 
 export type Chunk = z.infer<typeof chunkSchema>;
+
+// One retrievable unit as it flows through ingestion, before document metadata
+// is stamped on. chunk_index is not carried — it is positional, assigned when
+// the document is flattened for storage.
+export const chunkBodySchema = z.object({
+  text: z.string(),
+  page_number: z.number().int().positive().nullable(),
+});
+
+export type ChunkBody = z.infer<typeof chunkBodySchema>;
+
+// A document as it flows through ingestion: its metadata once, plus its ordered
+// chunk bodies. Both ingestion paths (PDF, HTML) produce this shape; the flat
+// per-chunk records are derived from it at storage.
+export const documentSchema = z.object({
+  metadata: documentMetadataSchema,
+  bodies: z.array(chunkBodySchema),
+});
+
+export type Document = z.infer<typeof documentSchema>;
 
 export const TARGET_TOKENS = 600;
 const HARD_CAP_TOKENS = 800;
@@ -68,28 +95,28 @@ export function packParagraphs(paragraphs: string[]): string[] {
 export function chunkDocument(
   pages: OrderedPage[],
   meta: DocumentMetadata,
-): Chunk[] {
-  const chunks: Chunk[] = [];
-  let chunk_index = 0;
-
+): Document {
+  const bodies: ChunkBody[] = [];
   for (const page of pages) {
-    const bodies = packParagraphs(page.paragraphs.map((p) => p.text));
-    for (const body of bodies) {
-      chunks.push({
+    for (const body of packParagraphs(page.paragraphs.map((p) => p.text))) {
+      bodies.push({
         text: `${buildPrefix(meta, page.page_number)}\n${body}`,
-        chunk_index,
         page_number: page.page_number,
-        source_type: meta.source_type,
-        published_at: meta.published_at,
-        edition_no: meta.edition_no,
-        document_title: meta.document_title,
-        document_url: meta.document_url,
       });
-      chunk_index += 1;
     }
   }
+  return { metadata: meta, bodies };
+}
 
-  return chunks;
+// Flattens a document into its stored chunk records: assigns each body its
+// positional chunk_index and stamps on the document metadata.
+export function documentToChunks(doc: Document): Chunk[] {
+  return doc.bodies.map((body, chunk_index) => ({
+    ...doc.metadata,
+    text: body.text,
+    chunk_index,
+    page_number: body.page_number,
+  }));
 }
 
 function splitLongParagraph(text: string): string[] {
