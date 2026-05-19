@@ -4,21 +4,21 @@ export type SourceType = 'newspaper' | 'website';
 
 export interface DocumentMetadata {
   source_type: SourceType;
-  published_at: string;
-  edition_title: string;
+  published_at: string | null;
+  document_title: string;
   edition_no: number | null;
   document_url: string;
 }
 
 export interface SlugConfig {
-  edition_title: string;
+  document_title: string;
   source_type: SourceType;
 }
 
 export type SlugMap = Record<string, SlugConfig>;
 
 export const SLUG_MAP: SlugMap = {
-  'der-kisslegger': { edition_title: 'Der Kißlegger', source_type: 'newspaper' },
+  'der-kisslegger': { document_title: 'Der Kißlegger', source_type: 'newspaper' },
 };
 
 const FILENAME_PATTERN = /^(\d{2})-(\d{2})-(\d{4})-(.+)\.pdf$/i;
@@ -53,7 +53,7 @@ export function parseDocumentMetadata(
 
   return {
     source_type: slugConfig.source_type,
-    edition_title: slugConfig.edition_title,
+    document_title: slugConfig.document_title,
     edition_no: null,
     published_at,
     document_url: filename,

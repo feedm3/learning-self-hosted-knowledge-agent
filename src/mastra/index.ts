@@ -7,6 +7,7 @@ import { Observability, DefaultExporter, SensitiveDataFilter } from '@mastra/obs
 import { ingestPdfWorkflow } from './workflows/ingestPdf';
 import { searchChunksWorkflow } from './workflows/searchChunks';
 import { answerAgent } from './agents/answerAgent';
+import { dataFilePath, dataFileUrl } from './lib/data-dir';
 
 export const mastra = new Mastra({
   workflows: { ingestPdfWorkflow, searchChunksWorkflow },
@@ -16,10 +17,12 @@ export const mastra = new Mastra({
     id: 'composite-storage',
     default: new LibSQLStore({
       id: 'mastra-storage',
-      url: process.env.MASTRA_DB_URL ?? 'file:./mastra.db',
+      url: process.env.MASTRA_DB_URL ?? dataFileUrl('mastra.db'),
     }),
     domains: {
-      observability: await new DuckDBStore().getStore('observability'),
+      observability: await new DuckDBStore({
+        path: dataFilePath('mastra.duckdb'),
+      }).getStore('observability'),
     },
   }),
   logger: new PinoLogger({

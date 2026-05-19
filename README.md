@@ -1,8 +1,8 @@
 # learning-self-hosted-knowledge-agent
 
-A learning project: a self-hosted retrieval-augmented (RAG) agent built with [Mastra](https://mastra.ai/) that answers questions over biweekly newspaper PDFs. The target architecture also includes a publisher's website (HTML plus PDFs linked from it), replacing a managed setup of Ragie (PDF RAG) + Tavily (web search) with infrastructure I control.
+A learning project: a self-hosted retrieval-augmented (RAG) agent built with [Mastra](https://mastra.ai/) that answers questions over biweekly newspaper PDFs and a publisher's website (HTML plus PDFs linked from it). It replaces a managed setup of Ragie (PDF RAG) + Tavily (web search) with infrastructure I control.
 
-Status: **work in progress, learning repo.** Not production-ready. The implemented path today is PDF ingestion/search plus a Mastra answer agent; website pre-crawl ingestion is still an architectural target, not checked-in code.
+Status: **work in progress, learning repo.** Not production-ready. The implemented path today is PDF ingestion, a two-phase website crawler, combined search, and a Mastra answer agent. Crawl scheduling and a production EU/self-hosted LLM are still open.
 
 ## Why self-host
 
@@ -37,6 +37,17 @@ pnpm run infra:down   # stop everything (named volumes persist)
 ```
 
 App is reachable on `http://localhost:4111`. State (`chunks.db`, `mastra.db`, model cache) is persisted in named volumes; `docker compose down -v` wipes them.
+
+### Ingesting the publisher website
+
+The website crawler runs as two phases (it needs `infra:dev` up for embeddings):
+
+```shell
+pnpm run crawl:website    # phase 1 — fetch the site into ./crawl-cache
+pnpm run ingest:website   # phase 2 — extract, chunk, embed, sweep orphans
+```
+
+`crawl:website` writes a gitignored snapshot to `crawl-cache/`; `ingest:website` reads it, so a failed ingest can be retried without re-fetching. See [ADR 0005](./docs/adr/0005-website-crawler-standalone-module.md).
 
 ## Sample data
 

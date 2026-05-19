@@ -15,13 +15,20 @@ export function rerank(hits: SearchHit[], opts: RerankOptions = {}): RerankedHit
 
   const reranked = hits.map((hit) => {
     const weight = weights[hit.metadata.source_type] ?? 1.0;
-    const days = Math.max(0, daysBetween(hit.metadata.published_at, now));
-    const recency = Math.exp(-lambda * days);
+    const recency = recencyFactor(hit.metadata.published_at, now, lambda);
     return { ...hit, raw_score: hit.score, score: hit.score * weight * recency };
   });
 
   reranked.sort((a, b) => b.score - a.score);
   return reranked;
+}
+
+// A chunk with no publication date (the normal case for static website pages)
+// does not decay — it keeps a recency factor of 1.0.
+function recencyFactor(publishedAt: string | null, now: Date, lambda: number): number {
+  if (!publishedAt) return 1.0;
+  const days = Math.max(0, daysBetween(publishedAt, now));
+  return Math.exp(-lambda * days);
 }
 
 function daysBetween(publishedAtIso: string, now: Date): number {

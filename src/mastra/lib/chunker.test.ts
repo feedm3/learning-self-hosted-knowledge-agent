@@ -6,7 +6,7 @@ import type { DocumentMetadata } from './metadata';
 const META: DocumentMetadata = {
   source_type: 'newspaper',
   published_at: '2026-01-15',
-  edition_title: 'Der Kißlegger',
+  document_title: 'Der Kißlegger',
   edition_no: 42,
   document_url: '15-01-2026-der-kisslegger.pdf',
 };
@@ -39,7 +39,7 @@ describe('chunkDocument', () => {
       source_type: 'newspaper',
       published_at: '2026-01-15',
       edition_no: 42,
-      edition_title: 'Der Kißlegger',
+      document_title: 'Der Kißlegger',
       document_url: '15-01-2026-der-kisslegger.pdf',
     });
   });

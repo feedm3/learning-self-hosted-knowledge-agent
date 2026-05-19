@@ -10,3 +10,7 @@ dist
 *.duckdb.wal
 .netlify
 .vercel
+crawl-cache
+crawl-cache.tmp
+crawl-reports
+data

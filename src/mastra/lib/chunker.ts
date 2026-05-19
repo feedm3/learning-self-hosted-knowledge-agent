@@ -5,27 +5,64 @@ import { germanFormatDate, type DocumentMetadata } from './metadata';
 export const chunkSchema = z.object({
   text: z.string(),
   chunk_index: z.number().int().nonnegative(),
-  page_number: z.number().int().positive(),
+  page_number: z.number().int().positive().nullable(),
   source_type: z.enum(['newspaper', 'website']),
-  published_at: z.string(),
+  published_at: z.string().nullable(),
   edition_no: z.number().nullable(),
-  edition_title: z.string(),
+  document_title: z.string(),
   document_url: z.string(),
 });
 
 export type Chunk = z.infer<typeof chunkSchema>;
 
-const TARGET_TOKENS = 600;
+export const TARGET_TOKENS = 600;
 const HARD_CAP_TOKENS = 800;
 const OVERLAP_TOKENS = 80;
 const CHARS_PER_TOKEN = 4;
 
-function estimateTokens(text: string): number {
+export function estimateTokens(text: string): number {
   return Math.ceil(text.length / CHARS_PER_TOKEN);
 }
 
 function buildPrefix(meta: DocumentMetadata, page_number: number): string {
-  return `[${meta.edition_title} | Ausgabe ${germanFormatDate(meta.published_at)} | Seite ${page_number}]`;
+  if (meta.source_type === 'newspaper' && meta.published_at) {
+    return `[${meta.document_title} | Ausgabe ${germanFormatDate(meta.published_at)} | Seite ${page_number}]`;
+  }
+  return `[${meta.document_title} – ${meta.document_url} | Seite ${page_number}]`;
+}
+
+// Token-packs paragraphs into chunk bodies of ~600 tokens (hard cap 800), with
+// an ~80-token overlap paragraph carried into the next body so context that
+// straddles a boundary survives. A paragraph over the hard cap is sentence-split
+// and each slice stands alone.
+export function packParagraphs(paragraphs: string[]): string[] {
+  const bodies: string[] = [];
+  let buf: string[] = [];
+  let bufTokens = 0;
+
+  const flush = (): void => {
+    if (buf.length === 0) return;
+    bodies.push(buf.join('\n\n').trim());
+    const last = buf[buf.length - 1];
+    buf = estimateTokens(last) <= OVERLAP_TOKENS ? [last] : [];
+    bufTokens = buf.reduce((sum, p) => sum + estimateTokens(p), 0);
+  };
+
+  for (const para of paragraphs) {
+    const paraTokens = estimateTokens(para);
+
+    if (paraTokens > HARD_CAP_TOKENS) {
+      flush();
+      for (const slice of splitLongParagraph(para)) bodies.push(slice);
+      continue;
+    }
+    if (bufTokens + paraTokens > HARD_CAP_TOKENS) flush();
+    buf.push(para);
+    bufTokens += paraTokens;
+    if (bufTokens >= TARGET_TOKENS) flush();
+  }
+  if (buf.length > 0) bodies.push(buf.join('\n\n').trim());
+  return bodies.filter((b) => b.length > 0);
 }
 
 export function chunkDocument(
@@ -35,55 +72,21 @@ export function chunkDocument(
   const chunks: Chunk[] = [];
   let chunk_index = 0;
 
-  const push = (page: number, bodies: string[]) => {
-    const prefix = buildPrefix(meta, page);
-    const body = bodies.join('\n\n').trim();
-    if (body.length === 0) return;
-    chunks.push({
-      text: `${prefix}\n${body}`,
-      chunk_index,
-      page_number: page,
-      source_type: meta.source_type,
-      published_at: meta.published_at,
-      edition_no: meta.edition_no,
-      edition_title: meta.edition_title,
-      document_url: meta.document_url,
-    });
-    chunk_index += 1;
-  };
-
   for (const page of pages) {
-    let buf: string[] = [];
-    let bufTokens = 0;
-
-    const flush = () => {
-      if (buf.length === 0) return;
-      push(page.page_number, buf);
-      const last = buf[buf.length - 1];
-      const overlap = estimateTokens(last) <= OVERLAP_TOKENS ? [last] : [];
-      buf = overlap;
-      bufTokens = overlap.reduce((s, p) => s + estimateTokens(p), 0);
-    };
-
-    for (const para of page.paragraphs) {
-      const paraTokens = estimateTokens(para.text);
-
-      if (paraTokens > HARD_CAP_TOKENS) {
-        flush();
-        for (const slice of splitLongParagraph(para.text)) {
-          push(page.page_number, [slice]);
-        }
-        continue;
-      }
-
-      if (bufTokens + paraTokens > HARD_CAP_TOKENS) flush();
-
-      buf.push(para.text);
-      bufTokens += paraTokens;
-
-      if (bufTokens >= TARGET_TOKENS) flush();
+    const bodies = packParagraphs(page.paragraphs.map((p) => p.text));
+    for (const body of bodies) {
+      chunks.push({
+        text: `${buildPrefix(meta, page.page_number)}\n${body}`,
+        chunk_index,
+        page_number: page.page_number,
+        source_type: meta.source_type,
+        published_at: meta.published_at,
+        edition_no: meta.edition_no,
+        document_title: meta.document_title,
+        document_url: meta.document_url,
+      });
+      chunk_index += 1;
     }
-    if (buf.length > 0) push(page.page_number, buf);
   }
 
   return chunks;

@@ -1,4 +1,6 @@
 import { LibSQLVector } from '@mastra/libsql';
+import { createClient, type Client } from '@libsql/client';
+import { dataFileUrl } from './data-dir';
 import type { Chunk } from './chunker';
 import { EMBEDDING_DIMENSION } from './embedder';
 import { rerank } from './rerank';
@@ -10,7 +12,7 @@ import {
 } from './search-types';
 
 export const CHUNKS_INDEX = 'chunks';
-const DB_URL = process.env.CHUNKS_DB_URL ?? 'file:./chunks.db';
+const DB_URL = process.env.CHUNKS_DB_URL ?? dataFileUrl('chunks.db');
 
 // 6x over-fetch gives the recency/source rerank a meaningful candidate pool
 // without scanning the full corpus on every query.
@@ -64,6 +66,40 @@ export async function replaceDocumentChunks(
     metadata: chunks,
     ids,
     deleteFilter: { document_url },
+  });
+}
+
+let cachedClient: Client | null = null;
+
+function getRawClient(): Client {
+  if (!cachedClient) {
+    cachedClient = createClient({ url: DB_URL });
+  }
+  return cachedClient;
+}
+
+// Distinct document_urls of website documents in the index, for the crawl
+// orphan sweep. Uses raw SQL because LibSQLVector exposes no way to enumerate
+// stored metadata — its query API requires a vector and returns ranked hits.
+export async function listWebsiteDocumentUrls(): Promise<string[]> {
+  await ensureIndex();
+  const result = await getRawClient().execute({
+    sql: `SELECT DISTINCT json_extract(metadata, '$.document_url') AS document_url
+          FROM ${CHUNKS_INDEX}
+          WHERE json_extract(metadata, '$.source_type') = 'website'`,
+    args: [],
+  });
+  return result.rows
+    .map((row) => row.document_url)
+    .filter((url): url is string => typeof url === 'string' && url.length > 0);
+}
+
+// Removes every chunk belonging to one document. Used to sweep orphaned pages.
+export async function deleteDocument(document_url: string): Promise<void> {
+  await ensureIndex();
+  await getChunkStore().deleteVectors({
+    indexName: CHUNKS_INDEX,
+    filter: { document_url },
   });
 }
 

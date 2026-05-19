@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { rerank } from './rerank';
 import type { SearchHit } from './search-types';
 
-function hit(id: string, score: number, source_type: string, published_at: string): SearchHit {
+function hit(
+  id: string,
+  score: number,
+  source_type: string,
+  published_at: string | null,
+): SearchHit {
   return {
     id,
     score,
@@ -13,7 +18,7 @@ function hit(id: string, score: number, source_type: string, published_at: strin
       source_type: source_type as 'newspaper' | 'website',
       published_at,
       edition_no: null,
-      edition_title: 'Der Kißlegger',
+      document_title: 'Der Kißlegger',
       document_url: `${id}.pdf`,
     },
   };
@@ -47,6 +52,13 @@ describe('rerank', () => {
       halfLifeDays: 60,
     });
     expect(result.score).toBeCloseTo(0.5, 2);
+  });
+
+  it('applies no decay when published_at is null', () => {
+    const oldNow = new Date('2030-01-01T00:00:00Z');
+    const [result] = rerank([hit('a', 1, 'website', null)], { now: oldNow });
+    // no date -> recency factor 1.0, so score is just the source weight
+    expect(result.score).toBeCloseTo(1.0, 5);
   });
 
   it('clamps future publication dates to a recency factor of 1', () => {

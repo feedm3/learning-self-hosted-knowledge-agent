@@ -14,14 +14,17 @@ console.log(`pages: ${parsed.pages.length}`);
 const ordered = parsed.pages.map(orderPage);
 
 const page1Text = ordered[0].paragraphs.map((p) => p.text).join('\n');
-const dateCheck = checkDateAgainstPageOne(meta.published_at, page1Text);
+const dateCheck = meta.published_at
+  ? checkDateAgainstPageOne(meta.published_at, page1Text)
+  : 'no published_at in metadata';
 console.log('page-1 date check:', dateCheck);
 
 const chunks = chunkDocument(ordered, meta);
 console.log(`chunk count: ${chunks.length}`);
 console.log(`chunks per page:`,
   chunks.reduce<Record<number, number>>((acc, c) => {
-    acc[c.page_number] = (acc[c.page_number] ?? 0) + 1;
+    const page = c.page_number ?? 0;
+    acc[page] = (acc[page] ?? 0) + 1;
     return acc;
   }, {}),
 );

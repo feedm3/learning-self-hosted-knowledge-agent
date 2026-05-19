@@ -24,7 +24,7 @@ const prepareChunks = createStep({
 
     let warning: string | null = null;
     const pageOne = orderedPages[0];
-    if (pageOne) {
+    if (pageOne && meta.published_at) {
       const pageOneText = pageOne.paragraphs.map((p) => p.text).join('\n');
       const check = checkDateAgainstPageOne(meta.published_at, pageOneText);
       if (!check.ok) {

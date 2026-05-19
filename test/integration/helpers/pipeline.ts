@@ -12,7 +12,7 @@ import { parsePdf } from '../../../src/mastra/lib/pdf-parser';
 // Slug map for generated fixtures. Kept here, not in production SLUG_MAP, so
 // test-only editions never leak into shipping code.
 export const TEST_SLUG_MAP: SlugMap = {
-  'test-bulletin': { edition_title: 'Test-Bulletin', source_type: 'newspaper' },
+  'test-bulletin': { document_title: 'Test-Bulletin', source_type: 'newspaper' },
 };
 
 // The real ingestion path, minus the Mastra workflow shell:

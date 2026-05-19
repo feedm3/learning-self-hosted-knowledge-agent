@@ -8,10 +8,12 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "outDir": "dist"
   },
   "include": [
     "src/**/*",
+    "scripts/**/*",
     "test/**/*",
     "vitest.config.ts",
     "vitest.integration.config.ts"

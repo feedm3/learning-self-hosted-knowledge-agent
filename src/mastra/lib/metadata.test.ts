@@ -12,7 +12,7 @@ describe('parseDocumentMetadata', () => {
     const meta = parseDocumentMetadata('docs/15-01-2026-der-kisslegger.pdf');
     expect(meta).toEqual({
       source_type: 'newspaper',
-      edition_title: 'Der Kißlegger',
+      document_title: 'Der Kißlegger',
       edition_no: null,
       published_at: '2026-01-15',
       document_url: '15-01-2026-der-kisslegger.pdf',

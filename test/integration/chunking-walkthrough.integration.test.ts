@@ -78,7 +78,7 @@ describe('walkthrough: how a PDF becomes chunks', () => {
   });
 
   it('never lets a chunk span two pages', () => {
-    const pageNumbers = chunks.map((c) => c.page_number);
+    const pageNumbers = chunks.map((c) => c.page_number ?? 0);
     expect(pageNumbers).toEqual([...pageNumbers].sort((a, b) => a - b));
     expect(new Set(pageNumbers)).toEqual(new Set([1, 2]));
   });
