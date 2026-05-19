@@ -8,6 +8,32 @@ Status: **work in progress, learning repo.** Not production-ready. The implement
 
 Target deployment: **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible — no document or query text leaves the EU in the runtime retrieval path. That rules out managed US-hosted RAG/search services and pushes embeddings to a local model. See [`CONTEXT.md`](./CONTEXT.md) for the full architectural picture and [`docs/adr/`](./docs/adr/) for the decisions behind it.
 
+## Pipeline
+
+```mermaid
+flowchart TD
+    subgraph ingest["Ingestion (offline)"]
+        pdf["Newspaper PDF"] --> parse["Parse + column-sort text"]
+        crawl["crawl:website<br/>fetch site into crawl-cache"] --> extract["ingest:website<br/>extract text from cache"]
+        parse --> chunk["Chunk"]
+        extract --> chunk
+        chunk --> embed["Embed locally<br/>Ollama / bge-m3"]
+        embed --> store[("LibSQL<br/>combined chunk index")]
+        extract -.orphan sweep.-> store
+    end
+
+    subgraph query["Query (runtime)"]
+        q["User question"] --> qembed["Embed query locally"]
+        qembed --> topk["Vector top-K from LibSQL"]
+        store --> topk
+        topk --> rerank["Re-rank<br/>similarity × source_weight × recency_decay"]
+        rerank --> agent["Answer agent"]
+        agent --> answer["German answer<br/>with citations"]
+    end
+```
+
+Steps still open: crawl scheduling (re-crawls are manual) and a production EU/self-hosted LLM for the answer agent.
+
 ## Setup
 
 Requires Node `>=22.13.0`, pnpm, and a Docker engine (Docker Desktop, [OrbStack](https://orbstack.dev/), Colima, or `docker.io` on Linux).
