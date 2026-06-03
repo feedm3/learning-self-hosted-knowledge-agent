@@ -8,10 +8,11 @@ Self-hosted RAG agent over biweekly newspaper PDFs, with a planned extension for
 
 Implemented today:
 
-- PDF ingestion workflow: parse PDF text, order multi-column pages, chunk, embed, and upsert into LibSQL.
+- PDF ingestion workflow: parse PDF text, order multi-column pages, chunk, embed, and upsert into LibSQL. Driven from a `ingest:pdf` script over the newspaper-sample PDFs.
 - Website crawler: two-phase pipeline — `crawl:website` fetches the publisher site into a gitignored crawl cache, `ingest:website` extracts/chunks/embeds the cache into the index and sweeps disappeared pages. Standalone module.
 - Search workflow: embed the query locally and retrieve/rerank chunks from the combined chunk index.
 - One answer agent: calls the search workflow and answers in German from retrieved chunks.
+- Eval harness: an Evalite-based retrieval eval and generation eval over a labeled query set. See [ADR 0006](./docs/adr/0006-evals-via-evalite.md); open improvements tracked in [`TODO.md`](./TODO.md).
 
 Not implemented yet:
 
@@ -55,6 +56,11 @@ Target deployment = **German municipalities** (Städte/Kommunen). The pipeline m
 - **chunk** — one retrievable unit. Carries metadata for re-ranking.
 - **indexing** — embedding a document's chunks locally and upserting them into the combined chunk index, replacing any earlier chunks of the same document. The shared tail of every ingestion path (newspaper PDF, website HTML, website PDF).
 - **retrieval policy** — the tunable knobs of the retrieval ranking stage, bundled in one place: vector over-fetch multiplier, per-source weights, and recency half-life.
+- **eval set** — the offline measurement harness: a query set plus scorers, run on demand to tune the retrieval policy and catch regressions (notably when the LLM provider is swapped). Splits into a *retrieval eval* and a *generation eval*. Distinct from a Mastra *scorer*, which scores live production traces — the eval set is a batch run over a fixed dataset.
+- **query set** — (alias *gold set*) the labeled queries the eval runs over. Each query carries a category, the `document_url`s that should be retrieved, the facts the answer must contain, and whether the answer should refuse (out-of-corpus queries). Categories: single-chunk factual, multi-chunk synthesis, out-of-corpus/refusal, source-routing & recency.
+- **retrieval eval** — scores the search layer alone (query → ranked chunks), bypassing the LLM. Deterministic metrics — recall@k and MRR — against the gold `document_url`s.
+- **generation eval** — scores the full answer agent (retrieved chunks → German answer): faithfulness, completeness against the query's expected facts, citation-format correctness, German-only, and refusal correctness.
+- **judge** — the LLM-as-judge that scores faithfulness and completeness; a strong model distinct from the answer agent's own model, to avoid self-grading bias.
 
 ## Example data ≠ domain
 
@@ -76,3 +82,4 @@ See [`docs/adr/`](./docs/adr/). Read these before changing the architecture. Cur
 - [0003 — Embedding model: bge-m3](./docs/adr/0003-embedding-model-bge-m3.md)
 - [0004 — PDF parser: pure-Node](./docs/adr/0004-pdf-parser-pure-node.md)
 - [0005 — Website crawler: standalone module](./docs/adr/0005-website-crawler-standalone-module.md)
+- [0006 — Evals via Evalite](./docs/adr/0006-evals-via-evalite.md)

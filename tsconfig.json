@@ -15,7 +15,9 @@
     "src/**/*",
     "scripts/**/*",
     "test/**/*",
+    "evals/**/*",
     "vitest.config.ts",
-    "vitest.integration.config.ts"
+    "vitest.integration.config.ts",
+    "evalite.config.ts"
   ]
 }
