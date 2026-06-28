@@ -52,6 +52,8 @@ services:
       OLLAMA_URL: http://ollama:11434/v1
       CHUNKS_DB_URL: file:/app/state/chunks.db
       MASTRA_DB_URL: file:/app/state/mastra.db
+      # No anonymous CLI usage analytics from the deployed app (DSGVO posture, ADR 0001).
+      MASTRA_TELEMETRY_DISABLED: "1"
     volumes:
       - app-state:/app/state
       - ./docs/newspaper-samples:/app/docs/newspaper-samples:ro

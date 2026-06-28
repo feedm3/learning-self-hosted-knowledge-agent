@@ -13,6 +13,11 @@ import { hitMetadataSchema, type RerankedHit, type SearchHit } from './search-ty
 export const CHUNKS_INDEX = 'chunks';
 const DB_URL = process.env.CHUNKS_DB_URL ?? dataFileUrl('chunks.db');
 
+// Raw client shares the DB file with LibSQLVector's writes (e.g. the orphan
+// sweep reads while ingest upserts). Without a busy timeout, libsql fails
+// immediately with SQLITE_BUSY on lock contention; wait instead. (@libsql/client 0.17.4)
+const SQLITE_BUSY_TIMEOUT_MS = 5000;
+
 export { hitSchema, rerankedHitSchema, hitMetadataSchema } from './search-types';
 export type { SearchHit, RerankedHit };
 
@@ -65,7 +70,7 @@ let cachedClient: Client | null = null;
 
 function getRawClient(): Client {
   if (!cachedClient) {
-    cachedClient = createClient({ url: DB_URL });
+    cachedClient = createClient({ url: DB_URL, timeout: SQLITE_BUSY_TIMEOUT_MS });
   }
   return cachedClient;
 }
