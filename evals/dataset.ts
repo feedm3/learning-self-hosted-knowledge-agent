@@ -11,6 +11,14 @@
 // ingest reads as a retrieval miss, not an error.
 //
 // `relevantDocUrls` and `expectedFacts` are empty for refusal queries.
+//
+// Corpus version: the website gold labels were authored/verified against the
+// crawl of 2026-05-18 (www.kisslegg.de). The reproducible way to score them is
+// the frozen fixture — `pnpm run eval:fixture` ingests `evals/fixtures/
+// crawl-cache/` (a committed subset of that crawl) into an isolated
+// `eval-chunks.db`; `pnpm run eval` then reads that DB. A live `crawl:website`
+// re-fetch drifts from these labels (pages move/edit) and is NOT what the eval
+// scores against. See TODO.md "P1 — make the eval reproducible".
 
 export type QueryCategory =
   | 'single-chunk-factual'

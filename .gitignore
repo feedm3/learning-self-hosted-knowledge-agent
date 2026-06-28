@@ -10,7 +10,10 @@ dist
 *.duckdb.wal
 .netlify
 .vercel
-crawl-cache
+/crawl-cache
 crawl-cache.tmp
 crawl-reports
 data
+
+# The frozen eval fixture is a committed subset of the crawl cache — keep it.
+!evals/fixtures/crawl-cache/

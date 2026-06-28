@@ -1,0 +1,302 @@
+{
+  "startedAt": "2026-05-18T10:47:29.595Z",
+  "finishedAt": "2026-05-18T12:01:38.482Z",
+  "host": "www.kisslegg.de",
+  "entries": [
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/bauen-wohnen/wasserwerte",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/bauen-wohnen/wasserwerte/index.html",
+      "title": "Wasserwerte",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/buergermeister",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/rathaus/buergermeister/index.html",
+      "title": "Bürgermeister",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/geschichte-struktur/kisslegg-in-zahlen",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/geschichte-struktur/kisslegg-in-zahlen/index.html",
+      "title": "Kißlegg in Zahlen",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/geschichte-struktur/geschichte-kisslegg",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/geschichte-struktur/geschichte-kisslegg/index.html",
+      "title": "Geschichte Kißlegg",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/buergerdienste/heiraten-im-neuen-schloss",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/buergerdienste/heiraten-im-neuen-schloss/index.html",
+      "title": "Heiraten im Neuen Schloss",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/buergerdienste/selbstablesung-der-wasserzaehler",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/buergerdienste/selbstablesung-der-wasserzaehler/index.html",
+      "title": "Selbstablesung der Wasserzähler",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/ver-entsorgung/abfall-wertstoffe",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/ver-entsorgung/abfall-wertstoffe/index.html",
+      "title": "Abfall & Wertstoffe",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/lage-anfahrt/anreise-oepnv-e-carsharing",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/lage-anfahrt/anreise-oepnv-e-carsharing/index.html",
+      "title": "Anreise & ÖPNV & e-carsharing",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/stellenangebote",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/stellenangebote/index.html",
+      "title": "Stellenangebote",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/gebuehrenuebersicht-kinderbetreuung",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/kinderbetreuung/gebuehrenuebersicht-kinderbetreuung/index.html",
+      "title": "Gebührenübersicht Kinderbetreuung",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/anmeldungen-fuer-das-kindergartenjahr",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/kinderbetreuung/anmeldungen-fuer-das-kindergartenjahr/index.html",
+      "title": "Anmeldungen für das Kindergartenjahr",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/ver-entsorgung/wasserversorgung",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/ver-entsorgung/wasserversorgung/index.html",
+      "title": "Wasserversorgung",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/partnerschaften/fontanellato-italien",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/partnerschaften/fontanellato-italien/index.html",
+      "title": "Fontanellato, Italien",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/partnerschaften/le-pouliguen-frankreich",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/partnerschaften/le-pouliguen-frankreich/index.html",
+      "title": "Le Pouliguen, Frankreich",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/ortschaften/immenried",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/ortschaften/immenried/index.html",
+      "title": "Immenried",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/ortschaften/waltershofen",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/ortschaften/waltershofen/index.html",
+      "title": "Waltershofen",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/kontakt-oeffnungszeiten",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/rathaus/kontakt-oeffnungszeiten/index.html",
+      "title": "Kontakt & Öffnungszeiten",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/ansprechpartner",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/rathaus/ansprechpartner/index.html",
+      "title": "Ansprechpartner",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/aemter",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/rathaus/aemter/index.html",
+      "title": "Ämter",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/gemeinderat",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/gemeinderat/index.html",
+      "title": "Gemeinderat",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/geschichte-struktur/gemeindearchiv",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/geschichte-struktur/gemeindearchiv/index.html",
+      "title": "Gemeindearchiv",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/kommunale-kinderkrippe-kindernest",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/kinderbetreuung/kommunale-kinderkrippe-kindernest/index.html",
+      "title": "Kommunale Kinderkrippe Kindernest",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/sonderpaedagogische-kindertageseinrichtungen",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/kinderbetreuung/sonderpaedagogische-kindertageseinrichtungen/index.html",
+      "title": "Sonderpädagogische Kindertageseinrichtungen",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/ver-entsorgung/bauhof",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/ver-entsorgung/bauhof/index.html",
+      "title": "Bauhof",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/satzungen-ortsrecht",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/satzungen-ortsrecht/index.html",
+      "title": "Satzungen & Ortsrecht",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/katholisches-kinderhaus-regenbogen",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/leben-wohnen/kinderbetreuung/katholisches-kinderhaus-regenbogen/index.html",
+      "title": "Katholisches Kinderhaus Regenbogen",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/lage-anfahrt/ortsplan",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/lage-anfahrt/ortsplan/index.html",
+      "title": "Ortsplan",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/buergerdienste/lebenslagen",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/buergerdienste/lebenslagen/index.html",
+      "title": "Lebenslagen",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/steuern-gebuehren",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/steuern-gebuehren/index.html",
+      "title": "Steuern & Gebühren",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/impressum-service/impressum",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/gemeindeinfo-wirtschaft/impressum-service/impressum/index.html",
+      "title": "Impressum",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/gaeste/aktuelles-service/tourist-information/kontakt-oeffnungszeiten",
+      "kind": "html",
+      "depth": 2,
+      "outcome": "ok",
+      "cacheFile": "gaeste/aktuelles-service/tourist-information/kontakt-oeffnungszeiten/index.html",
+      "title": "Kontakt & Öffnungszeiten",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus-aktuell",
+      "kind": "html",
+      "depth": 1,
+      "outcome": "ok",
+      "cacheFile": "buerger/rathaus-service/rathaus-aktuell/index.html",
+      "title": "Rathaus Aktuell",
+      "editorialDate": null
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/_eval-fixture-removed-page",
+      "kind": "html",
+      "outcome": "gone",
+      "depth": 1,
+      "httpStatus": 404
+    }
+  ]
+}

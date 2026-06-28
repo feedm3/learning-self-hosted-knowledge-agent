@@ -3,25 +3,33 @@
 Working backlog for the project — currently focused on the eval harness and the
 answer agent. See [ADR 0006](./docs/adr/0006-evals-via-evalite.md) for the eval
 design and [`CONTEXT.md`](./CONTEXT.md) for the glossary. Run the evals with
-`pnpm run eval` (needs `pnpm run infra:dev` for Ollama; `OPENROUTER_API_KEY` for
-the generation eval).
+`pnpm run eval:fixture` (build the frozen corpus once) then `pnpm run eval`
+(needs `pnpm run infra:dev` for Ollama; `OPENROUTER_API_KEY` for the generation
+eval).
 
 ## Baseline (last measured)
 
-Retrieval (combined index — website + 3 newspaper editions):
+Retrieval, measured 2026-06-27 against the **frozen fixture** (`eval-chunks.db` =
+32-page website fixture + 3 newspaper editions; `pnpm run eval:fixture && pnpm
+run eval`):
 
 | category               | recall@5 | recall@20 | MRR |
 | ---------------------- | -------- | --------- | --- |
-| single-chunk-factual   | 67%      | 80%       | 39% |
-| multi-chunk-synthesis  | 67%      | 79%       | 31% |
-| source-routing-recency | 100%     | 100%      | 64% |
+| single-chunk-factual   | 80%      | 80%       | 66% |
+| multi-chunk-synthesis  | 79%      | 79%       | 65% |
+| source-routing-recency | 100%     | 100%      | 62% |
 
-Generation (40 queries, website-only index — **re-run after newspaper ingest**):
-faithfulness 100% · completeness 93% · german-only 100% · refusal-correct 98%
-· citation-format 100%.
+> recall@5 == recall@20 in every category: the misses are *total* misses (gold
+> absent from top-20), not just mis-ranking. With the hard negatives in place,
+> the newest edition `06-06-2026-der-kisslegger.pdf` ranks **#1 in every missed
+> website query** (sf-02 Bürgermeister, sf-07 Abfall, sf-15 Autobahn, ms-06
+> Ortschaften, ms-10 Ortsverwaltungen, ms-05 Partnergemeinden). This is the P2
+> cross-source-ranking problem, now reproducible — the 1.5× newspaper
+> `source_weight` starves website-answerable queries.
 
-> ⚠️ The generation numbers above predate the newspaper ingest. Re-run the
-> generation eval to refresh them.
+Generation: **not re-measured** — the generation eval needs a valid
+`OPENROUTER_API_KEY` (the dev key currently returns 401 "User not found"). Once a
+key is set, `pnpm run eval` runs both layers against the frozen DB.
 
 ## Done
 
@@ -42,38 +50,41 @@ faithfulness 100% · completeness 93% · german-only 100% · refusal-correct 98%
       `geschichte` and `in-zahlen` pages also answer it). Strict single-doc gold
       understates recall.
 
-## P1 — make the eval reproducible (it currently isn't)
+## P1 — make the eval reproducible — DONE
 
-The evals are **not hermetic**: they run the real `answerAgent` against whatever
-is in the local `data/chunks.db` (`CHUNKS_DB_URL ?? dataFileUrl('chunks.db')`) —
-the same DB `mastra dev` uses — plus local Ollama and live OpenRouter. The gold
-labels were authored against one website snapshot, but that snapshot is not
-committed.
+The evals used to be **not hermetic**: they ran the real `answerAgent` against
+whatever was in the shared dev `data/chunks.db` plus a *live* re-crawl of
+kisslegg.de that drifted from the gold labels. Now there is a frozen, isolated
+fixture. Reproducible flow:
 
-- [ ] **Commit a frozen eval crawl-cache subset.** `crawl-cache/` is gitignored,
-      so a fresh checkout has no website data — `pnpm run crawl:website` does a
-      *live* re-fetch of kisslegg.de, which drifts from the gold labels (pages
-      move → recall 0; content edits → completeness drops; new pages → a refusal
-      query stops being out-of-corpus). The cache is just raw HTML/PDF bytes + a
-      manifest; commit the ~25 pages the eval references so `ingest:website` is
-      reproducible. (Newspaper PDFs are already committed, so the source-routing
-      queries are stable — only the website queries drift.)
-- [ ] **Isolate the eval database.** Even with committed data, the eval reads the
-      shared dev `chunks.db`, so prior experiments/ingests pollute it. Point the
-      evals at a dedicated `eval-chunks.db` (set `CHUNKS_DB_URL`) built only from
-      the frozen fixture, so eval state can't be contaminated by dev activity.
-- [ ] **Choose the frozen subset = deterministic core + agentic curation.** The
-      *minimal* covering set is AI-free: the gold labels already list every
-      `relevantDocUrl`, so the subset is `union(all relevantDocUrls)` plus a
-      handful of distractor pages — a small script. Use a Claude Code **Dynamic
-      Workflow** (multi-agent fan-out) only for the judgment half: audit which
-      query *kinds* are under-represented, and pick **hard-negative** pages
-      (plausible-but-wrong, e.g. the Impressum / long PDFs that already crowd
-      top-5) so the frozen corpus still stresses retrieval. NOT a job for the
-      web "deep research" feature — that synthesises external web sources and
-      cannot read local `chunks.db` or compute a covering subset.
-- [ ] **Stamp the corpus version.** Until the above land, record "website gold
-      labels verified against the crawl of <date>" so drift is visible.
+```bash
+pnpm run eval:fixture   # build subset → wipe eval-chunks.db → ingest pdf+website
+pnpm run eval           # scores against the isolated eval-chunks.db
+```
+
+- [x] **Commit a frozen eval crawl-cache subset.** `evals/fixtures/crawl-cache/`
+      (32 HTML pages: 17 gold + 15 hard negatives + 1 gone), a committed subset
+      of the 2026-05-18 crawl. `crawl-cache` is now anchored to root in
+      `.gitignore` with a `!evals/fixtures/crawl-cache/` exception.
+      `src/crawler/cache.ts` reads `CRAWL_CACHE_DIR` so ingest can target it.
+      `scripts/build-eval-fixture.ts` rebuilds it from a live crawl + the curated
+      negatives list.
+- [x] **Isolate the eval database.** `pnpm run eval` / `eval:watch` /
+      `eval:fixture:ingest` set `CHUNKS_DB_URL=file://$PWD/data/eval-chunks.db`,
+      so eval state is built only from the fixture and can't be polluted by dev
+      `chunks.db` activity. (`eval-chunks.db` stays gitignored — regenerated.)
+- [x] **Frozen subset = deterministic core + agentic curation.** Core =
+      `union(website relevantDocUrls)` (AI-free, in `build-eval-fixture.ts`).
+      Hard negatives picked by the `curate-hard-negatives` Dynamic Workflow
+      (proposers per query category → lean coverage-balanced selector) over the
+      manifest's sibling+boilerplate candidates; result in
+      `evals/fixtures/hard-negatives.json` with per-page rationale + displaced
+      query ids. Lean/HTML-only (no large PDFs).
+- [x] **Stamp the corpus version.** `evals/dataset.ts` header records the labels
+      were verified against the crawl of 2026-05-18, and points at the fixture.
+- [x] **Re-measure retrieval against the frozen corpus.** Done 2026-06-27 — see
+      the baseline table above. Generation still pending a valid
+      `OPENROUTER_API_KEY`.
 
 ## P1 — fix the measuring instrument (so scores are trustworthy)
 
@@ -92,11 +103,12 @@ committed.
 
 ## P2 — improve the agent's actual scores (the real work)
 
-- [ ] **Tune cross-source ranking — now the top finding.** Ingesting the
-      newspaper *dropped* website recall (single-chunk 80%→67%, MRR 58%→39%):
-      the 1.5× newspaper `source_weight` crowds out correct website pages for
-      website-answerable queries. Re-tune `source_weight` (and re-measure) so
-      the newspaper boost does not starve the website.
+- [ ] **Tune cross-source ranking — now the top finding, now reproducible.**
+      Against the frozen fixture the newest edition `06-06-2026-der-kisslegger.pdf`
+      is #1 in every missed website query — the 1.5× newspaper `source_weight`
+      crowds out correct website pages for website-answerable queries. Re-tune
+      `source_weight` and re-run `pnpm run eval:fixture && pnpm run eval` (now a
+      stable A/B baseline) so the newspaper boost does not starve the website.
 - [ ] **Recency over-weights the newest edition.** For older-edition-specific
       topics (sr-02 Glascontainer, sr-05 Spendenaktion) the newest edition still
       ranks #1. Revisit the recency half-life / decay so an older edition that

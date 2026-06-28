@@ -3,8 +3,12 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { safeDecodeURIComponent } from './url-utils';
 
-export const CACHE_DIR = path.resolve('crawl-cache');
-const TMP_DIR = path.resolve('crawl-cache.tmp');
+// Defaults to the live `crawl-cache/`. Overridable via CRAWL_CACHE_DIR so the
+// eval harness can ingest a small committed fixture instead of the live crawl
+// (mirrors the CHUNKS_DB_URL override in chunk-store). The temp dir used by the
+// atomic-swap crawl stays adjacent to whichever cache dir is active.
+export const CACHE_DIR = path.resolve(process.env.CRAWL_CACHE_DIR ?? 'crawl-cache');
+const TMP_DIR = `${CACHE_DIR}.tmp`;
 const MANIFEST_NAME = 'manifest.json';
 
 export type EntryKind = 'html' | 'pdf';

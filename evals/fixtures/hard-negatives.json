@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "purpose": "Hard-negative website pages added to the frozen eval fixture so the small corpus still stresses retrieval. Plausible-but-wrong siblings of gold pages + keyword-dense boilerplate that crowd top-5. Consumed by scripts/build-eval-fixture.ts.",
+    "curatedAgainstCrawl": "2026-05-18",
+    "curation": "Picked by the curate-hard-negatives Dynamic Workflow (proposers per query category -> lean coverage-balanced selector) from the live crawl manifest's sibling+boilerplate candidates. Re-runnable; see scratchpad curate2.wf.js."
+  },
+  "selected": [
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/ansprechpartner",
+      "rationale": "Names Ortsverwaltung Immenried/Waltershofen (ms-10) and officials shadowing mayor/deputy queries.",
+      "displaces": ["ms-10", "sf-02", "sf-13"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus/aemter",
+      "rationale": "Department directory listing the Ortsverwaltungen ms-10 asks about; crowds the mayor query.",
+      "displaces": ["ms-10", "sf-02"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/gemeinderat",
+      "rationale": "Council page heavy with governance/ehrenamtlich vocabulary; strongest decoy for the deputy-mayor query.",
+      "displaces": ["sf-13", "sf-02"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/geschichte-struktur/gemeindearchiv",
+      "rationale": "History sibling dense with urkundlich vocabulary; decoy for first-mention, fires/famines, population.",
+      "displaces": ["sf-04", "ms-08", "sf-03"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/kommunale-kinderkrippe-kindernest",
+      "rationale": "On-entity Kindernest page stating admission age; strongest decoy for ms-02.",
+      "displaces": ["ms-02"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/sonderpaedagogische-kindertageseinrichtungen",
+      "rationale": "Title contains Kindertageseinrichtungen and lists facilities; facility-overview decoy for ms-01.",
+      "displaces": ["ms-01"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/ver-entsorgung/bauhof",
+      "rationale": "Ver-entsorgung sibling crowding waste-responsibility, water-supply-zones, Abfall-hotline.",
+      "displaces": ["sf-07", "ms-04", "sf-11"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/satzungen-ortsrecht",
+      "rationale": "Abfallsatzung/Zuständigkeit regulation vocabulary overlaps the waste-disposal-responsibility query.",
+      "displaces": ["sf-07"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/leben-wohnen/kinderbetreuung/katholisches-kinderhaus-regenbogen",
+      "rationale": "Facility page with Anmeldung/Kindergartenjahr vocabulary competing with the registration page.",
+      "displaces": ["ms-11"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/lage-anfahrt/ortsplan",
+      "rationale": "Lage-anfahrt sibling rich in map/location vocabulary; covers autobahn and highest-point queries.",
+      "displaces": ["sf-15", "sf-08"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/buergerdienste/lebenslagen",
+      "rationale": "Lebenslagen hub with Trauung/heiraten life-event vocabulary; decoy for the wedding-venue query.",
+      "displaces": ["sf-05"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/steuern-gebuehren",
+      "rationale": "References Kindergarten/Kinderkrippe Beiträge and links the gold fee page; waste-fee overlap.",
+      "displaces": ["ms-01", "sf-07"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/gemeindeinfo-wirtschaft/impressum-service/impressum",
+      "rationale": "Keyword-dense legal boilerplate naming the Bürgermeister and responsible Gemeinde; TODO-flagged crowder.",
+      "displaces": ["sf-02", "sf-07"]
+    },
+    {
+      "url": "https://www.kisslegg.de/gaeste/aktuelles-service/tourist-information/kontakt-oeffnungszeiten",
+      "rationale": "Contact/Öffnungszeiten boilerplate with phone numbers crowding the Abfallberatung-hotline query.",
+      "displaces": ["sf-11"]
+    },
+    {
+      "url": "https://www.kisslegg.de/buerger/rathaus-service/rathaus-aktuell",
+      "rationale": "Rathaus news hub with aktuell+Stellen vocabulary crowding job-postings and reelection queries.",
+      "displaces": ["sf-16", "sf-09"]
+    }
+  ]
+}
