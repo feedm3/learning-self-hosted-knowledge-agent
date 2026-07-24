@@ -9,8 +9,7 @@ import { evalite } from 'evalite';
 // the agent's Memory needs the storage provider wired on the instance, or
 // generate() fails with "Memory requires a storage provider".
 import { mastra } from '../src/mastra/index';
-import { embedSingle } from '../src/mastra/lib/embedder';
-import { searchTopK } from '../src/mastra/lib/chunk-store';
+import { retrievedContext } from './retrieved-context';
 import { dataset, type GoldQuery } from './dataset';
 import { judgeAnswer } from './judge';
 import {
@@ -21,12 +20,6 @@ import {
   citationFormat,
   type GenerationOutput,
 } from './scorers';
-
-// Context the judge checks faithfulness against. Re-running the search here —
-// rather than parsing the agent's tool-call results — keeps the judge context
-// deterministic. Slightly wider than the agent's topK 5 to avoid false
-// hallucination flags when a claim sits in a slightly lower-ranked chunk.
-const JUDGE_CONTEXT_TOP_K = 10;
 
 evalite<GoldQuery, GenerationOutput, GoldQuery>('Generation — answer agent', {
   data: () => dataset.map((q) => ({ input: q, expected: q })),
@@ -43,9 +36,10 @@ evalite<GoldQuery, GenerationOutput, GoldQuery>('Generation — answer agent', {
     });
     const answer = result.text ?? '';
 
-    const queryVector = await embedSingle(query.query);
-    const contextHits = await searchTopK(queryVector, JUDGE_CONTEXT_TOP_K);
-    const contextChunks = contextHits.map((hit) => hit.text);
+    // Judge against what the agent actually retrieved, not a fresh search.
+    const contextChunks = retrievedContext(
+      (result as { toolResults?: unknown }).toolResults,
+    );
 
     const judge = await judgeAnswer({
       query: query.query,
