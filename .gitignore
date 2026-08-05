@@ -15,5 +15,9 @@ crawl-cache.tmp
 crawl-reports
 data
 
+# pnpm content-addressable store (only created when the global store is
+# unwritable, e.g. a sandboxed run) — never a build input
+.pnpm-store/
+
 # The frozen eval fixture is a committed subset of the crawl cache — keep it.
 !evals/fixtures/crawl-cache/
