@@ -36,12 +36,9 @@ services:
     environment:
       OLLAMA_HOST: http://ollama:11434
     entrypoint: ["sh", "-c", "ollama pull bge-m3"]
-    restart: "no"
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: rag-app
     depends_on:
       ollama-pull-bge-m3:

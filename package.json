@@ -1,8 +1,6 @@
 {
   "name": "learning-self-hosted-knowledge-agent",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
@@ -12,7 +10,7 @@
     "eval:fixture:build": "tsx scripts/build-eval-fixture.ts",
     "eval:fixture:ingest": "CHUNKS_DB_URL=\"file://$PWD/data/eval-chunks.db\" CRAWL_CACHE_DIR=evals/fixtures/crawl-cache pnpm run ingest:pdf && CHUNKS_DB_URL=\"file://$PWD/data/eval-chunks.db\" CRAWL_CACHE_DIR=evals/fixtures/crawl-cache pnpm run ingest:website",
     "eval:fixture": "pnpm run eval:fixture:build && rm -f data/eval-chunks.db data/eval-chunks.db-shm data/eval-chunks.db-wal && pnpm run eval:fixture:ingest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "dev": "mastra dev",
     "ingest:pdf": "tsx scripts/ingest-pdf.ts",
     "crawl:website": "tsx scripts/crawl.ts",
@@ -24,10 +22,9 @@
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "module",
+  "packageManager": "pnpm@11.20.0",
   "engines": {
     "node": ">=22.13.0"
   },

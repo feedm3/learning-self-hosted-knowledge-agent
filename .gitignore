@@ -1,15 +1,7 @@
-output.txt
 node_modules
-dist
 .mastra
 .env.development
 .env
-*.db
-*.db-*
-*.duckdb
-*.duckdb.wal
-.netlify
-.vercel
 /crawl-cache
 crawl-cache.tmp
 crawl-reports

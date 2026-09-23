@@ -12,7 +12,6 @@ import { dataFilePath, dataFileUrl } from './lib/data-dir';
 export const mastra = new Mastra({
   workflows: { ingestPdfWorkflow, searchChunksWorkflow },
   agents: { answerAgent },
-  scorers: {},
   storage: new MastraCompositeStore({
     id: 'composite-storage',
     default: new LibSQLStore({

@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.7
 # Build the Mastra app as a self-contained image.
 #
 #   docker build -t rag-app .
@@ -14,8 +13,7 @@ RUN pnpm build
 
 FROM node:24-alpine AS runtime
 WORKDIR /app
-ENV NODE_ENV=production \
-    PORT=4111
+ENV NODE_ENV=production
 COPY --from=builder /app/.mastra/output ./
 RUN mkdir -p /app/state
 EXPOSE 4111

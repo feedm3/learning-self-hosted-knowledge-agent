@@ -1,6 +1,5 @@
 node_modules
 .mastra
-dist
 .git
 .idea
 .agents
@@ -12,4 +11,3 @@ dist
 *.duckdb.wal
 scripts
 docs/newspaper-samples
-output.txt
