@@ -6,7 +6,7 @@ Status: **work in progress, learning repo.** Not production-ready. The implement
 
 ## Why self-host
 
-Target deployment: **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible — no document or query text leaves the EU in the runtime retrieval path. That rules out managed US-hosted RAG/search services and pushes embeddings to a local model. See [`CONTEXT.md`](./CONTEXT.md) for the full architectural picture and [`docs/adr/`](./docs/adr/) for the decisions behind it.
+Target deployment: **German municipalities** (Städte/Kommunen). The pipeline must be DSGVO-defensible — no document or query text leaves the EU in the runtime retrieval path. That rules out managed US-hosted RAG/search services and pushes embeddings to a local model. See [`GLOSSARY.md`](./GLOSSARY.md) for the full architectural picture and [`docs/adr/`](./docs/adr/) for the decisions behind it.
 
 ## Pipeline
 
@@ -81,6 +81,6 @@ pnpm run ingest:website   # phase 2 — extract, chunk, embed, sweep orphans
 
 ## Documentation layout
 
-- [`CONTEXT.md`](./CONTEXT.md) — what this project is, the compliance constraint, architectural commitments, glossary. Read first.
+- [`GLOSSARY.md`](./GLOSSARY.md) — what this project is, the compliance constraint, architectural commitments, glossary. Read first.
 - [`AGENTS.md`](./AGENTS.md) — operating rules for anyone (human or LLM) writing code here.
 - [`docs/adr/`](./docs/adr/) — architectural decision records.

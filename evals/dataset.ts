@@ -59,7 +59,7 @@ function ask(
 // is the newspaper Amtsblatt. The gold doc is the edition's bare-filename
 // document_url (newspaper editions are not under SITE). The topic is usually
 // also covered on the website, but the Amtsblatt is the authoritative source
-// (CONTEXT.md: "Latest edition = most authoritative"), so retrieval should
+// (GLOSSARY.md: "Latest edition = most authoritative"), so retrieval should
 // surface the edition via its source_weight / recency boost.
 function route(
   id: string,

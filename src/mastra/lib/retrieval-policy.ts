@@ -1,7 +1,7 @@
 import type { RerankedHit, SearchHit } from './search-types';
 
 // The tunable knobs of the retrieval ranking stage, bundled in one place.
-// See CONTEXT.md "Architecture commitments" for the rationale behind each.
+// See GLOSSARY.md "Architecture commitments" for the rationale behind each.
 export interface RetrievalPolicy {
   // Vector candidates fetched per requested hit, before reranking trims to topK.
   // A wider pool gives the recency/source rerank something to reorder.

@@ -2,7 +2,7 @@
 
 Working backlog for the project — currently focused on the eval harness and the
 answer agent. See [ADR 0006](./docs/adr/0006-evals-via-evalite.md) for the eval
-design and [`CONTEXT.md`](./CONTEXT.md) for the glossary. Run the evals with
+design and [`GLOSSARY.md`](./GLOSSARY.md) for the glossary. Run the evals with
 `pnpm run eval:fixture` (build the frozen corpus once) then `pnpm run eval`
 (needs `pnpm run infra:dev` for Ollama; `OPENROUTER_API_KEY` for the generation
 eval).

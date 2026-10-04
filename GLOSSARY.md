@@ -1,4 +1,4 @@
-# CONTEXT.md
+# GLOSSARY.md
 
 The shared mental model of this project. Read this before changing anything non-trivial.
 
