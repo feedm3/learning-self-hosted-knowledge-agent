@@ -18,7 +18,7 @@
     "build": "mastra build",
     "start": "mastra start",
     "infra:dev": "docker compose up -d ollama ollama-pull-bge-m3",
-    "infra:up": "docker compose up -d --build",
+    "infra:up": "docker compose build --pull && docker compose up -d",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f"
   },
