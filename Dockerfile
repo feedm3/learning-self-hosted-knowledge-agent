@@ -3,7 +3,7 @@
 #   docker build -t rag-app .
 #   docker run --rm -p 4111:4111 rag-app
 
-FROM node:24-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
@@ -11,7 +11,7 @@ RUN pnpm install --frozen-lockfile
 COPY src ./src
 RUN pnpm build
 
-FROM node:24-alpine AS runtime
+FROM node:24.22.1-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/.mastra/output ./
